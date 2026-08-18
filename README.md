@@ -27,8 +27,7 @@ sevilleta-coflowering-synchrony/
 ├── code/
 │   └── synchrony_july2026.Rmd    # full analysis: synchrony metric, climate models, bee stability, figures
 └── data/
-    ├── processed/         # derived data read by the analysis (included here)
-    └── raw/               # raw SEV-LTER inputs — download from EDI (see data/raw/README.md)
+    ├── processed/         # derived data read by the analysis
 ```
 
 ## Data provenance
@@ -46,16 +45,6 @@ sevilleta-coflowering-synchrony/
 | `precipitation_CV.csv` | Coefficient of variation of daily precipitation by station and year |
 | `pdo.timeseries.ersstv5.csv` | Annual Pacific Decadal Oscillation index (derived from NOAA/NCEI ERSSTv5) |
 
-**Raw data (NOT re-archived here — cite and download from EDI)**
-
-The raw Sevilleta LTER bee, plant-phenology, and meteorological data are permanently archived in the Environmental Data Initiative (EDI) repository and should be cited as data packages, not re-hosted. To reproduce the upstream synchrony calculation, download these into `data/raw/` (see `data/raw/README.md`):
-
-- Bee abundance data — `SEVBeeData2002-2019_revised2023-07-19.csv` (EDI; *Wright et al.*, add DOI)
-- Plant phenology data — `sev137_plant_phenology.2023.csv` (EDI; *McLellan et al.*, add DOI)
-- Meteorological data — SEV-LTER met stations (EDI; *Moore & Winter*, add DOI)
-
-> The chunks that compute the pairwise synchrony metric from raw phenology are set `eval = FALSE`; the downstream models and figures run from the processed files above.
-
 ## Reproducing the analysis
 
 Requires **R** (≥ 4.3) and the packages below. Open `code/synchrony_july2026.Rmd` in RStudio and knit, or run `rmarkdown::render("code/synchrony_july2026.Rmd")` with the working directory set so the `data/processed/` files are on the read paths.
@@ -66,7 +55,7 @@ Key versions used: R Core Team (2026); nlme 3.1-162 (Pinheiro et al. 2023); MuMI
 
 ## Archiving / DOI
 
-This repository is mirrored to Zenodo for a citable DOI. On release, cite the Zenodo record (DOI to be added here).
+This repository is mirrored to Zenodo for a citable DOI. On release, cite the Zenodo record (10.5281/zenodo.22002089).
 
 ## License
 
