@@ -1,0 +1,342 @@
+code,family,genus,subgenus,species,diet_breadth,specialist_host,diet_breadth_citation,sociality,sociality_citation,overwintering_stage,overwintering_stage_citation
+ANAND002,Andrenidae,Andrena,Micrandrena,2,unknown,NA,KW,solitary,KW; TG,adult,KW; TG
+ANAND003,Andrenidae,Andrena,NA,3,unknown,NA,KW,unknown,NA,adult,KW; TG
+ANANDARD,Andrenidae,Andrena,Callandrena,ardis,oligolectic,"Asteraceae, especially Gutierrezia",KW,unknown,NA,adult,KW; TG
+ANANDILL,Andrenidae,Andrena,Micrandrena,illinoiensis,unknown,NA,KW,unknown,NA,adult,KW; TG
+ANANDJES,Andrenidae,Andrena,Tylandrena,jessicae,unknown,NA,KW,unknown,NA,adult,KW; TG
+ANANDMES,Andrenidae,Andrena,Tylandrena,mesillae,polylectic,NA,KW,unknown,NA,adult,KW; TG
+ANANDPEC,Andrenidae,Andrena,Callandrena,pecosana,oligolectic,Asteraceae,KW; Hurd et al. 1980,unknown,NA,adult,KW; TG
+ANANDPRF,Andrenidae,Andrena,Micrandrena,primulifrons,oligolectic,NA,KW,unknown,NA,adult,KW; TG
+ANANDPRI,Andrenidae,Andrena,Rhaphandrena,prima,oligolectic,NA,KW,unknown,NA,adult,KW; TG
+ANANDPRU,Andrenidae,Andrena,Plastandrena,prunorum,polylectic,NA,Minckley et al. 1999; Hurd et al. 1980,solitary,KW; TG,adult,Stemkovski et al. 2020
+ANCAL002,Andrenidae,Calliopsis,NA,2,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANCALANO,Andrenidae,Calliopsis,Perissander,anomoptera,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANCALMEL,Andrenidae,Calliopsis,Nomadopsis,meliloti,oligolectic,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANCALNEB,Andrenidae,Calliopsis,Verbenapis,nebraskensis?,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANCALROZ,Andrenidae,Calliopsis,Calliopsima,rozeni,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+ANCALTIM,Andrenidae,Calliopsis,Nomadopsis,timberlakei,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANCALVER,Andrenidae,Calliopsis,Verbenapis,verbenae,oligolectic,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANMACLAT,Andrenidae,Macrotera,Macroteropsis,latior,oligolectic,Sphaeralcea?,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANMACMAG,Andrenidae,Macrotera,Macroteropsis,magniceps,oligolectic,Sphaeralcea?,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANMACPOR,Andrenidae,Macrotera,Macroteropsis,portalis,oligolectic,Sphaeralcea,KW; TG,solitary,TG,prepupae,"Danforth 1991, 1999; Danforth et al. 2019"
+ANPER002,Andrenidae,Perdita,Perdita,2,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER003,Andrenidae,Perdita,Pentaperdita,3,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER004,Andrenidae,Perdita,Hexaperdita,4,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER005,Andrenidae,Perdita,Perdita,5,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER006,Andrenidae,Perdita,Perdita,6,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER010,Andrenidae,Perdita,NA,10,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER011,Andrenidae,Perdita,Perdita,11,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER012,Andrenidae,Perdita,Perdita,12,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER013,Andrenidae,Perdita,Perdita,13,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER014,Andrenidae,Perdita,NA,14,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER015,Andrenidae,Perdita,NA,15,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER016,Andrenidae,Perdita,NA,16,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER017,Andrenidae,Perdita,NA,17,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER018,Andrenidae,Perdita,NA,18,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER019,Andrenidae,Perdita,NA,19,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER020,Andrenidae,Perdita,NA,20,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER021,Andrenidae,Perdita,NA,21,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER022,Andrenidae,Perdita,NA,22,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER031,Andrenidae,Perdita,Perdita,31,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER032,Andrenidae,Perdita,Perdita,32,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER033,Andrenidae,Perdita,NA,33,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER036,Andrenidae,Perdita,Perdita,36,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER050,Andrenidae,Perdita,Perdita,50,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER051,Andrenidae,Perdita,NA,51,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER052,Andrenidae,Perdita,NA,52,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER54,Andrenidae,Perdita,NA,54,unknown,NA,NA,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPER56,Andrenidae,Perdita,NA,56,unknown,NA,NA,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERAAL,Andrenidae,Perdita,Pentaperdita,aff_albovittata,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERACU,Andrenidae,Perdita,Perdita,aff_cuspidata,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERAFF,Andrenidae,Perdita,Perdita,affinis,oligolectic,Asteraceae,KW; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERAHE,Andrenidae,Perdita,Hexaperdita,aff_heterotheceae,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERALB,Andrenidae,Perdita,Pentaperdita,albovittata,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERALH,Andrenidae,Perdita,Cockerellia,albipennis,oligolectic,"Asteraceae, especially Helianthus",Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERAMI,Andrenidae,Perdita,Perdita,aff_missionis,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERAPE,Andrenidae,Perdita,Perdita,aperta,oligolectic,Gutierrezia,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERARI,Andrenidae,Perdita,Perdita,aridella,oligolectic,Asteraceae,KW; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERAUS,Andrenidae,Perdita,Perdita,austini,oligolectic,"Asteraceae, especially Gutierrezia",KW; TG,solitary,TG,prepupae,Danforth et al. 2019
+ANPERBRA,Andrenidae,Perdita,Pentaperdita,bradleyana,oligolectic,Asteraceae,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERCAL,Andrenidae,Perdita,Hexaperdita,callicerata,oligolectic,"Asteraceae, especially Baileya",KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERCAR,Andrenidae,Perdita,Hexaperdita,cara,unknown,NA,TG,solitary,TG,prepupae,Danforth et al. 2019
+ANPERCON,Andrenidae,Perdita,Perdita,confusa,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERCOR,Andrenidae,Perdita,Cockerellia,coreopsidis,oligolectic,Asteraceae,KW,solitary,KW; TG,prepupae,"Danforth 1989, Danforth et al. 2019"
+ANPERDIV,Andrenidae,Perdita,Epimacrotera,diversa,oligolectic,Tiquilia,KW; TG,solitary,TG,prepupae,Danforth et al. 2019
+ANPERDRY,Andrenidae,Perdita,Perdita,drymariae?,oligolectic,Tidesroemia,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERFAL,Andrenidae,Perdita,Perdita,fallax,oligolectic,Asteraceae,KW; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERGUT,Andrenidae,Perdita,Perdita,gutierreziae,oligolectic,Asteraceae,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERIGN,Andrenidae,Perdita,Hexaperdita,ignota,oligolectic,"Asteraceae, especially Heterotheca",KW; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERLAR,Andrenidae,Perdita,Perditella,larreae,oligolectic,Larrea,KW; TG; Minckley et al. 1999; Hurd & Linsley 1975,solitary,TG,prepupae,Danforth et al. 2019
+ANPERLAT,Andrenidae,Perdita,Perdita,aff_laticincta,oligolectic?,"Asteraceae, especially Helianthus",Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERLEN,Andrenidae,Perdita,Perdita,lenis,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERLUT,Andrenidae,Perdita,Perdita,luteola,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERMAR,Andrenidae,Perdita,Perditella,marcialis,polylectic,NA,KW; TG; Hurd & Linsley 1975,solitary,TG,prepupae,Danforth et al. 2019
+ANPERREC,Andrenidae,Perdita,Perdita,rectangulata,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERSEM,Andrenidae,Perdita,Perdita,semicaerulea,oligolectic,Larrea,KW; TG; Minckley et al. 1999; Hurd & Linsley 1975,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERSEX,Andrenidae,Perdita,Perdita,sexmaculata,unknown,NA,NA,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERSPH,Andrenidae,Perdita,Perdita,sphaeralceae,oligolectic,Sphaeralcea,KW; TG,solitary,TG,prepupae,Danforth et al. 2019
+ANPERTRI,Andrenidae,Perdita,Perdita,trinotata,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPERVER,Andrenidae,Perdita,Cockerellia,verbesinae,oligolectic,"Asteraceae, especially Helianthus",KW; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+ANPRO001,Andrenidae,Protandrena,Heterosarus,1,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANPRO002,Andrenidae,Protandrena,Heterosarus,2,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANPRO003,Andrenidae,Protandrena,Heterosarus,3,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANPROGLO,Andrenidae,Protoxaea,NA,gloriosa,polylectic,NA,KW; Hurd & Linsley 1975,unknown,NA,prepupae,Danforth et al. 2019
+ANPSE001,Andrenidae,Pseudopanurgus,NA,1,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANPSE002,Andrenidae,Pseudopanurgus,NA,2,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+ANPSEFRA,Andrenidae,Pseudopanurgus,NA,fraterculus,oligolectic,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APANPCOM,Apidae,Anthophorula,Anthophorula,compactula,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APANPCOP,Apidae,Anthophorula,Anthophorula,completa,polylectic,NA,KW,solitary,TG,prepupae,Danforth et al. 2019
+APANPPYG,Apidae,Anthophorula,Anthophorisca,pygmaea,oligolectic,"Asteraceae, especially Helianthus",Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+APANTAFF,Apidae,Anthophora,Lophanthophora,affabilis,polylectic,NA,TG,solitary,TG,prepupae,Danforth et al. 2019
+APANTCAL,Apidae,Anthophora,Anthophoroides,californica,polylectic,NA,KW; Hurd & Linsley 1975,solitary,KW; TG,prepupae,Danforth et al. 2019
+APANTCEN,Apidae,Anthophora,Paramegilla,centriformis,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APANTCOP,Apidae,Anthophora,Lophanthophora,coptognatha,polylectic,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APANTLES,Apidae,Anthophora,Pyganthophora,lesquerellae,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APANTMON,Apidae,Anthophora,Mystacanthophora,montana,polylectic,NA,KW; TG; Hurd et al. 1980,solitary,TG,prepupae,Danforth et al. 2019
+APANTNEG,Apidae,Anthophora,Lophanthophora,neglecta,polylectic,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APANTNSP,Apidae,Anthophora,NA,n_sp,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APANTPET,Apidae,Anthophora,Heliophila,petrophila,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APANTPHE,Apidae,Anthophora,Heliophila,phenax,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APANTPOR,Apidae,Anthophora,Lophanthophora,porterae,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APANTSQU,Apidae,Anthophora,Micranthophora,squammulosa,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APANTURB,Apidae,Anthophora,Mystacanthophora,urbana,polylectic,NA,KW; TG; Minckley et al. 1999; Hurd & Linsley 1975,solitary,TG,prepupae,Danforth et al. 2019
+APAPIMEL,Apidae,Apis,Apis,mellifera,polylectic,NA,KW; TG; Hurd & Linsley 1975; Hurd et al. 1980,social,TG,adult,Stephen et al. 1969
+APBOMPEN,Apidae,Bombus,Thoracobombus,pensylvanicus,polylectic,NA,KW; Hurd & Linsley 1975; Hurd et al. 1980,unknown,NA,adult,Danforth et al. 2019
+APBOMSON,Apidae,Bombus,Thoracobombus,sonorus,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+APCENATR,Apidae,Centris,Paracentris,atripes,polylectic,NA,KW; Hurd & Linsley 1975,unknown,NA,prepupae,Danforth et al. 2019
+APCENCAE,Apidae,Centris,Paracentris,caesalpiniae,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APCENCOC,Apidae,Centris,Paracentris,cockerelli,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APCENLAN,Apidae,Centris,Paracentris,lanosa,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APCENZAC,Apidae,Centris,Paracentris,zacateca,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APCERNAN,Apidae,Ceratina,Zadontomerus,nanula,polylectic,NA,KW; Hurd et al. 1980,unknown,NA,adult,Danforth et al. 2019
+APDIAAUS,Apidae,Diadasia,NA,australis,oligolectic,"Cactaceae, especially Opuntia",KW; TG; Sipes & Tepedino 2005,solitary,TG,prepupae,Danforth et al. 2019
+APDIADIM,Apidae,Diadasia,NA,diminuta,oligolectic,Sphaeralcea,KW; Sipes & Tepedino 2005,solitary,KW; TG,prepupae,Danforth et al. 2019
+APDIAENA,Apidae,Diadasia,NA,enavata,oligolectic,"Asteraceae, especially Helianthus",Sipes & Tepedino 2005,unknown,NA,prepupae,Danforth et al. 2019
+APDIAMEG,Apidae,Diadasia,NA,megamorpha,oligolectic,Sphaeralcea,KW; TG,solitary,TG,prepupae,Danforth et al. 2019
+APDIAOCH,Apidae,Diadasia,NA,ochracea,oligolectic,Sphaeralcea,KW; Sipes & Tepedino 2005,solitary,KW; TG,prepupae,Danforth et al. 2019
+APDIARIN,Apidae,Diadasia,NA,rinconis,oligolectic,"Cactaceae, especially Opuntia",KW; TG; Sipes & Tepedino 2005,solitary,TG,prepupae,"Neff & Simpson 1992, Danforth et al. 2019"
+APEPEAME,Apidae,Epeolus,NA,aff_americanus,parasitic,NA,KW,parasitic,KW; TG,prepupae,Stemkovski et al. 2020
+APEPEBRU,Apidae,Epeolus,NA,brumleyi,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APEPECOM,Apidae,Epeolus,NA,compactus,parasitic,NA,KW,parasitic,KW; TG,prepupae,Stemkovski et al. 2020
+APEPEMES,Apidae,Epeolus,NA,mesillae,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APEPEMIN,Apidae,Epeolus,NA,minimus,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APERILAT,Apidae,Ericrocis,NA,lata,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APEUCAAL,Apidae,Eucera,Synhalonia,aff_albescens,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APEUCALB,Apidae,Eucera,Tetraloniella,albata,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APEUCERI,Apidae,Eucera,Tetraloniella,eriocarpi,polylectic,NA,Hurd & Linsley 1975,unknown,NA,prepupae,Danforth et al. 2019
+APEUCILL,Apidae,Eucera,Synhalonia,illinoensis,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APEUCLYC,Apidae,Eucera,Synhalonia,lycii,polylectic,NA,TG,solitary,TG,prepupae,Danforth et al. 2019
+APEUCPER,Apidae,Eucera,Tetraloniella,perconcinna,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APEUCPRU,Apidae,Eucera,Peponapis,pruinosa,oligolectic,Cucurbitaceae,KW,unknown,NA,prepupae,Danforth et al. 2019
+APEUCSIL,Apidae,Eucera,Tetraloniella,silacea?,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APEUCTER,Apidae,Eucera,Synhalonia,territella,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APEXOSOL,Apidae,Exomalopsis,Phanomalopsis,solani,polylectic,NA,KW; Hurd & Linsley 1975; Hurd et al. 1980,solitary,KW,prepupae,Danforth et al. 2019
+APHABMOR,Apidae,Habropoda,NA,morrisoni,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APHABPAL,Apidae,Habropoda,NA,pallida,oligolectic,Larrea,Minckley et al. 1999; Hurd & Linsley 1975,unknown,NA,prepupae,Danforth et al. 2019
+APHOLCAL,Apidae,Holcopasites,NA,calliopsidis,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APHOLPUL,Apidae,Holcopasites,NA,pulchellus,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APMARLUT,Apidae,Martinapis,NA,luteicornis,polylectic,NA,KW; Hurd & Linsley 1975,solitary,KW; TG,prepupae,Danforth et al. 2019
+APMELALE,Apidae,Melecta,Melecta,alexanderi,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APMELBOH,Apidae,Melecta,Melecta,bohartorum,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APMELPAC,Apidae,Melecta,Melecta,pacifica,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APMESAGI,Apidae,Melissodes,Eumelissodes,agilis,oligolectic,"Asteraceae, especially Helianthus",KW; Simpson & Neff 1987; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+APMESBIM,Apidae,Melissodes,Eumelissodes,bimatris,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APMESCOL,Apidae,Melissodes,Callimelissodes,coloradensis,oligolectic,"Asteraceae, especially Helianthus",Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APMESCOM,Apidae,Melissodes,Melissodes,communis,polylectic,NA,KW; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+APMESCON,Apidae,Melissodes,Eumelissodes,confusus,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Stemkovski et al. 2020
+APMESCOR,Apidae,Melissodes,Eumelissodes,coreopsis,oligolectic,"Asteraceae, especially Helianthus",KW; Hurd et al 1980,unknown,NA,prepupae,Stemkovski et al. 2020
+APMESFAC,Apidae,Melissodes,Eumelissodes,fasciatella,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APMESGIL,Apidae,Melissodes,Melissodes,gilensis,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APMESLIM,Apidae,Melissodes,Eumelissodes,limbus,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APMESMEN,Apidae,Melissodes,Eumelissodes,menuachus,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APMESMON,Apidae,Melissodes,Eumelissodes,montanus,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APMESPAL,Apidae,Melissodes,Eumelissodes,pallidisignatus,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APMESPAR,Apidae,Melissodes,Melissodes,paroselae,polylectic,NA,KW; Hurd & Linsley 1975; Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+APMESPER,Apidae,Melissodes,Eumelissodes,perpolitus,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APMESRIV,Apidae,Melissodes,Heliomelissodes,rivalis,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APMESSEM,Apidae,Melissodes,Eumelissodes,semilupinus,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APMESSNO,Apidae,Melissodes,Eumelissodes,snowii,polylectic,Asteraceae,Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+APMESSUB,Apidae,Melissodes,Eumelissodes,subagilis,polylectic,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APMESSUM,Apidae,Melissodes,Eumelissodes,submenuacha,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APMESTHE,Apidae,Melissodes,Melissodes,thelypodii,polylectic,NA,KW; TG; Hurd et al. 1980,solitary,TG,prepupae,Danforth et al. 2019
+APMESTRI,Apidae,Melissodes,Eumelissodes,tristis,polylectic,NA,KW; TG; Minckley et al. 1999; Hurd & Linsley 1975; Hurd et al. 1980,solitary,TG,prepupae,Stemkovski et al. 2020
+APMESVER,Apidae,Melissodes,Eumelissodes,verbesinarum,oligolectic,Asteraceae,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APNEOVIG,Apidae,Neolarra,NA,vigilans,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APNOMSPP,Apidae,Nomada,NA,spp,parasitic,NA,KW,parasitic,KW; TG,adult,Stemkovski et al. 2020
+APSVACOM,Apidae,Svastra,Anthedonia,compta,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APSVAHEL,Apidae,Svastra,Epimelissodes,helianthelli,oligolectic,Helianthus,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+APSVAMAC,Apidae,Svastra,Epimelissodes,machaerantherae,oligolectic,"Asteraceae, especially Helianthus",KW; Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APSVAOBL,Apidae,Svastra,Epimelissodes,obliqua,oligolectic,"Asteraceae, especially Helianthus",KW; Simpson & Neff 1987; Hurd et al. 1980,unknown,NA,prepupae,Danforth et al. 2019
+APSVASAB,Apidae,Svastra,Epimelissodes,sabinensis,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APTOWPUL,Apidae,Townsendiella,NA,pulchra,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+APTRI005,Apidae,Triepeolus,NA,5,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APTRI006,Apidae,Triepeolus,NA,6,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APTRI007,Apidae,Triepeolus,NA,7,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APTRI008,Apidae,Triepeolus,NA,8,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APTRI009,Apidae,Triepeolus,NA,9,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APTRI010,Apidae,Triepeolus,NA,10,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APTRI011,Apidae,Triepeolus,NA,11,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APTRICIR,Apidae,Triepeolus,NA,circumculus,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APTRIGRA,Apidae,Triepeolus,NA,grandis,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APTRIHEL,Apidae,Triepeolus,NA,helianthi,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APTRILUN,Apidae,Triepeolus,NA,lunatus,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APTRINOR,Apidae,Triepeolus,NA,norae,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APXENSTR,Apidae,Xenoglossa,Eoxenoglossa,strenua,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+APXERINT,Apidae,Xeromelecta,NA,interrupta,parasitic,NA,Hurd et al. 1980,parasitic,KW; TG,prepupae,Danforth et al. 2019
+APXYLCAL,Apidae,Xylocopa,NA,californica,polylectic,NA,Hurd & Linsley 1975,unknown,NA,adult,Danforth et al. 2019
+APZACMAC,Apidae,Zacosmia,NA,maculata,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+COCAUYAR,Colletidae,Caupolicana,NA,yarrowi,polylectic,NA,Hurd & Linsley 1975,unknown,NA,prepupae,Danforth et al. 2019
+COCOLBIR,Colletidae,Colletes,NA,birkmanni,unknown,NA,KW,unknown,NA,unknown,NA
+COCOLCLY,Colletidae,Colletes,NA,clypeonitens,oligolectic,Larrea,KW; Minckley et al. 1999; Hurd & Linsley 1975,unknown,NA,unknown,NA
+COCOLCOM,Colletidae,Colletes,NA,compactus,oligolectic,Asteraceae,Hurd et al. 1980,unknown,NA,unknown,NA
+COCOLCOV,Colletidae,Colletes,NA,covilleae,oligolectic,Larrea,Hurd & Linsley 1975,unknown,NA,unknown,NA
+COCOLINT,Colletidae,Colletes,NA,intermixtus?,unknown,NA,NA,unknown,NA,unknown,NA
+COCOLPHA,Colletidae,Colletes,NA,phaceliae,unknown,NA,KW,unknown,NA,unknown,NA
+COCOLSAL,Colletidae,Colletes,NA,salicicola,oligolectic,Larrea,Hurd & Linsley 1975,unknown,NA,unknown,NA
+COCOLSCO,Colletidae,Colletes,NA,scopiventer,oligolectic,Chamaesaracha,KW; TG,solitary,TG,unknown,NA
+COCOLSPH,Colletidae,Colletes,NA,sphaeralceae,oligolectic,Sphaeralcea,KW,unknown,NA,unknown,NA
+COCOLWOO,Colletidae,Colletes,NA,wootoni,polylectic,NA,Hurd & Linsley 1975; Minckley et al. 1999,unknown,NA,unknown,NA
+COHYL001,Colletidae,Hylaeus,Paraprosopis,1,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+COHYL002,Colletidae,Hylaeus,Paraprosopis,2,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+COHYLASI,Colletidae,Hylaeus,Paraprosopis,asininus,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+COHYLEPI,Colletidae,Hylaeus,Prosopis,episcopelis,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019
+HAAGAANG,Halictidae,Agapostemon,NA,angelicus,polylectic,NA,KW; TG; Minckley et al. 1999; Hurd & Linsley 1975; Hurd et al. 1980,solitary,TG,adult,Danforth et al. 2019
+HAAGAMEL,Halictidae,Agapostemon,NA,melliventris,polylectic,NA,KW; TG; Minckley et al. 1999; Hurd & Linsley 1975; Hurd et al. 1980,solitary,TG,adult,Danforth et al. 2019
+HAAGAOBL,Halictidae,Agapostemon,NA,obliquus,unknown,NA,KW,solitary,KW,adult,Danforth et al. 2019
+HAAGASPL,Halictidae,Agapostemon,NA,splendens,polylectic,NA,Hurd et al. 1980,solitary,KW,adult,Roberts 1969
+HAAGAVIR,Halictidae,Agapostemon,NA,virescens,polylectic,NA,Minckley et al. 1999; Hurd & Linsley 1975,solitary,KW,adult,Stephen et al. 1969
+HAAUGAUR,Halictidae,Augochlorella,NA,aurata,polylectic,NA,Hurd et al. 1980,social,KW,adult,Danforth et al. 2019
+HACONCON,Halictidae,Conanthalictus,NA,conanthi,oligolectic,NA,KW,unknown,NA,prepupae,Rozen & McGinley 1976
+HADUFMAL,Halictidae,Dufourea,NA,malacothricis,unknown,NA,NA,unknown,NA,prepupae,Danforth et al. 2019
+HADUFPUL,Halictidae,Dufourea,NA,pulchricornis,oligolectic,"Brassicaceae, especially Lesquerella",KW,unknown,NA,prepupae,Danforth et al. 2019
+HADUFVER,Halictidae,Dufourea,NA,vernalis,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+HAHALLIG,Halictidae,Halictus,NA,ligatus,polylectic,NA,KW; TG; Hurd et al. 1980,social,TG,adult,Danforth et al. 2019
+HAHALTRI,Halictidae,Halictus,NA,tripartitus,polylectic,NA,KW; TG; Hurd et al. 1980,social,TG,adult,Stemkovski et al. 2020
+HALAS001,Halictidae,Lasioglossum,Evylaeus,1,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASALI,Halictidae,Lasioglossum,Dialictus,cf_aliud,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASARG,Halictidae,Lasioglossum,Dialictus,argammon,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASCLA,Halictidae,Lasioglossum,Dialictus,clavicorne ,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASCOM,Halictidae,Lasioglossum,Dialictus,comulum,polylectic,NA,KW,social,KW; TG,adult,Danforth et al. 2019
+HALASDEL,Halictidae,Lasioglossum,Dialictus,deludens,polylectic,NA,TG,social,TG,adult,Danforth et al. 2019
+HALASDI04,Halictidae,Lasioglossum,Dialictus,4,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI07,Halictidae,Lasioglossum,Dialictus,7,polylectic,NA,TG,social,TG,adult,Danforth et al. 2019
+HALASDI13,Halictidae,Lasioglossum,Dialictus,13,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI30,Halictidae,Lasioglossum,Dialictus,30,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI36,Halictidae,Lasioglossum,Dialictus,36,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI37,Halictidae,Lasioglossum,Dialictus,37,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI39,Halictidae,Lasioglossum,Dialictus,39,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI40,Halictidae,Lasioglossum,Dialictus,40,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI47,Halictidae,Lasioglossum,Dialictus,47,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASDI49,Halictidae,Lasioglossum,Dialictus,49,unknown,NA,NA,social,KW,adult,Danforth et al. 2019
+HALASDI50,Halictidae,Lasioglossum,Dialictus,50,unknown,NA,NA,social,KW,adult,Danforth et al. 2019
+HALASDI51,Halictidae,Lasioglossum,Dialictus,51,unknown,NA,NA,social,KW,adult,Danforth et al. 2019
+HALASDI52,Halictidae,Lasioglossum,Dialictus,52,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASDI55,Halictidae,Lasioglossum,Dialictus,55,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASDI57,Halictidae,Lasioglossum,Dialictus,57,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASDI58,Halictidae,Lasioglossum,Dialictus,58,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASDIA,Halictidae,Lasioglossum,Dialictus,A,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASDIV,Halictidae,Lasioglossum,Dialictus,diversopunctatum,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASEOP,Halictidae,Lasioglossum,Dialictus,eophilium,unknown,NA,KW,unknown,NA,adult,Danforth et al. 2019
+HALASGLO,Halictidae,Lasioglossum,Dialictus,gloriosum,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASHUD,Halictidae,Lasioglossum,Dialictus,hudsoniellum,polylectic,NA,TG; Hurd & Linsley 1975,social,TG,adult,Danforth et al. 2019
+HALASJUL,Halictidae,Lasioglossum,Dialictus,julipile,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASLAM,Halictidae,Lasioglossum,Afrodialictus,lampronotum,polylectic,NA,KW,unknown,NA,adult,Danforth et al. 2019
+HALASLIL,Halictidae,Lasioglossum,Dialictus,lilianae,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASLUS,Halictidae,Lasioglossum,Sphecodogastra,lusorium,oligolectic,Onagraceae,KW,solitary,KW; TG,adult,Bohart and Youssef 1976; Danforth et al. 2019
+HALASMEL,Halictidae,Lasioglossum,Lasioglossum,nr_mellipes,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASMIC,Halictidae,Lasioglossum,Dialictus,microlepoides,polylectic,NA,Hurd & Linsley 1975,social,KW; TG,adult,Danforth et al. 2019
+HALASMOR,Halictidae,Lasioglossum,Lasioglossum,morrilli,polylectic,NA,KW; TG,solitary,TG,adult,Danforth et al. 2019
+HALASPAR,Halictidae,Lasioglossum,Lasioglossum,paraforbesii,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASPIL,Halictidae,Lasioglossum,Dialictus,pilosum?,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASPRO,Halictidae,Lasioglossum,Dialictus,profundum,unknown,NA,KW,social,KW,adult,Danforth et al. 2019
+HALASPRU,Halictidae,Lasioglossum,Dialictus,pruinosum,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASSEI,Halictidae,Lasioglossum,Dialictus,semibrunneum,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASSEM,Halictidae,Lasioglossum,Dialictus,semicaeruleum,polylectic,NA,TG,social,TG,adult,Stemkovski et al. 2020
+HALASSIS,Halictidae,Lasioglossum,Lasioglossum,sisymbrii,polylectic,NA,KW; Minckley et al. 1999; Hurd & Linsley 1975; Hurd et al. 1980,solitary,KW,adult,Danforth et al. 2019
+HALASSTI,Halictidae,Lasioglossum,Dialictus,stictaspis,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASTEX,Halictidae,Lasioglossum,Dialictus,TEX,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HALASTEX01,Halictidae,Lasioglossum,Dialictus,TEX01,unknown,NA,NA,unknown,NA,adult,Danforth et al. 2019
+HANOMTET,Halictidae,Nomia,Acunomia,tetrazonata,polylectic,NA,KW,solitary,KW,prepupae,Stephen et al. 1969
+HANOMTRI,Halictidae,Nomia,Epinomia,triangulifera,oligolectic,"Asteraceae, especially Helianthus",Hurd et al. 1980,solitary,KW,prepupae,Stephen et al. 1969
+HASPH001,Halictidae,Sphecodes,NA,1,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2019
+HASPH002,Halictidae,Sphecodes,NA,2,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2019
+HASPH004,Halictidae,Sphecodes,NA,4,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2019
+HASPH005,Halictidae,Sphecodes,NA,5,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2019
+HASPH006,Halictidae,Sphecodes,NA,6,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2019
+HASPMDIC,Halictidae,Sphecodosoma,NA,dicksoni,oligolectic,NA,KW,unknown,NA,adult,Danforth et al. 2019
+MEANTCOC,Megachilidae,Anthidium,Anthidium,cockerelli,polylectic,NA,KW; TG; Hurd & Linsley 1975,solitary,TG,prepupae,Danforth et al. 2019
+MEANTEMA,Megachilidae,Anthidium,Anthidium,emarginatum,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEANTMAC,Megachilidae,Anthidium,Anthidium,maculosum,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEANTPAL,Megachilidae,Anthidium,Anthidium,palmarum,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEANTPOR,Megachilidae,Anthidium,Anthidium,porterae,polylectic?,NA,TG,solitary,Gonzalez & Griswold 2013,prepupae,Danforth et al. 2019
+MEANTSCH,Megachilidae,Anthidium,Anthidium,schwarzi,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHBIG,Megachilidae,Ashmeadiella,Ashmeadiella,bigeloveae,polylectic,NA,KW; TG,solitary,TG,prepupae,Danforth et al. 2019
+MEASHBUC,Megachilidae,Ashmeadiella,Ashmeadiella,bucconis,oligolectic,Asteraceae,Hurd et al. 1980,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHCAC,Megachilidae,Ashmeadiella,Ashmeadiella,cactorum,polylectic,NA,KW; TG; Minckley et al. 1999,solitary,TG,prepupae,Danforth et al. 2019
+MEASHDIF,Megachilidae,Ashmeadiella,Ashmeadiella,difugita,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHERE,Megachilidae,Ashmeadiella,Arogochila,erema,oligolectic,Fabaceae?,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHGIL,Megachilidae,Ashmeadiella,Ashmeadiella,gillettei,polylectic,NA,KW; Minckley et al. 1999,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHMEL,Megachilidae,Ashmeadiella,Ashmeadiella,meliloti,polylectic,NA,KW; TG,solitary,TG,prepupae,Danforth et al. 2019
+MEASHOCC,Megachilidae,Ashmeadiella,Ashmeadiella,occipitalis,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHOPU,Megachilidae,Ashmeadiella,Ashmeadiella,opuntiae,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHRUB,Megachilidae,Ashmeadiella,Isosmia,rubrella,oligolectic,Fabaceae?,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEASHVAN,Megachilidae,Ashmeadiella,Ashmeadiella,vandykiella,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEATOADA,Megachilidae,Atoposmia,Eremosmia,aff_daleae,oligolectic,NA,KW,solitary,TG,prepupae,Danforth et al. 2019
+MEATOADL,Megachilidae,Atoposmia,Eremosmia,aff_daleae_2,unknown,NA,KW; TG,solitary,TG,prepupae,Danforth et al. 2019
+MECOEHIR,Megachilidae,Coelioxys,Xerocoelioxys,hirsutissima,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+MECOEHUN,Megachilidae,Coelioxys,Synocoelioxys,hunteri,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+MECOEMES,Megachilidae,Coelioxys,Xerocoelioxys,mesae,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+MEDIA001,Megachilidae,Dianthidium,Dianthidium,1,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEDIACON,Megachilidae,Dianthidium,Dianthidium,concinnum,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEDIAHET,Megachilidae,Dianthidium,Dianthidium,heterulkei,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEDIAIMP,Megachilidae,Dianthidium,Dianthidium,implicatum,oligolectic,Asteraceae,TG,solitary,Grigarick & Stange 1968,prepupae,Danforth et al. 2019
+MEDIAPAR,Megachilidae,Dianthidium,Dianthidium,parvum,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEDIOAPO,Megachilidae,Dioxys,NA,aff_pomonae,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2020
+MEDIOPAC,Megachilidae,Dioxys,NA,pacificus,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2021
+MEDIOPRO,Megachilidae,Dioxys,NA,productus,parasitic,NA,KW,parasitic,KW; TG,adult,Danforth et al. 2022
+MEHOPATO,Megachilidae,Hoplitis,Proteriades,aff_torchioi,unknown,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEHOPBIS,Megachilidae,Hoplitis,Alcidamea,biscutellae,oligolectic,Larrea,KW; Minckley et al. 1999; Hurd & Linsley 1975,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEHOPGRI,Megachilidae,Hoplitis,Alcidamea,grinnelli,polylectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEHOPZUN,Megachilidae,Hoplitis,Proteriades,zuni,oligolectic,NA,KW,solitary,KW; TG,prepupae,Danforth et al. 2019
+MELITAPI,Megachilidae,Lithurgopsis,NA,apicalis,oligolectic,"Cactaceae, especially Opuntia",Snelling 1983,solitary,KW; TG,prepupae,Danforth et al. 2019
+MEMEGADA,Megachilidae,Megachile,Megachiloides,aff_dakotensis,unknown,NA,KW,solitary,KW; TG,unknown,NA
+MEMEGBRE,Megachilidae,Megachile,Litomegachile,brevis,polylectic,NA,KW; Hurd et al. 1980,solitary,KW; TG,unknown,NA
+MEMEGCAS,Megachilidae,Megachile,Megachiloides,casadae,oligolectic,"Cactaceae, especially Opuntia",KW; Simpson & Neff 1987,solitary,KW; TG,unknown,NA
+MEMEGFUC,Megachilidae,Megachile,Megachiloides,fucata,polylectic,NA,KW; Minckley et al. 1999; Hurd & Linsley 1975,solitary,KW; TG,unknown,NA
+MEMEGINI,Megachilidae,Megachile,Sayapis,inimica,polylectic,NA,KW,solitary,KW; TG,unknown,NA
+MEMEGLIP,Megachilidae,Megachile,Litomegachile,lippiae,polylectic,NA,KW; Minckley et al. 1999; Hurd & Linsley 1975; Hurd et al. 1980,solitary,KW; TG,unknown,NA
+MEMEGLOB,Megachilidae,Megachile,Chelostomoides,lobatifrons,polylectic,NA,KW; TG,solitary,TG,unknown,NA
+MEMEGMEA,Megachilidae,Megachile,Megachiloides,melanderi,unknown,NA,KW,solitary,KW; TG,unknown,NA
+MEMEGMON,Megachilidae,Megachile,Megachile,montivaga,polylectic,NA,KW; Hurd et al. 1980,solitary,KW; TG,prepupae,Stemkovski et al. 2020
+MEMEGMUC,Megachilidae,Megachile,Megachiloides,mucorosa,polylectic,NA,KW; Hurd et al. 1980,solitary,KW; TG,unknown,NA
+MEMEGPAR,Megachilidae,Megachile,Argyropile,parallela,oligolectic,"Asteraceae, especially Helianthus",Hurd et al. 1980,solitary,KW; TG,unknown,NA
+MEMEGPOL,Megachilidae,Megachile,Sayapis,policaris,polylectic,NA,KW; TG; Hurd & Linsley 1975; Hurd et al. 1980,solitary,Baker et al 1985,unknown,NA
+MEMEGPRO,Megachilidae,Megachile,Chelostomoides,prosopidis,unknown,NA,KW,solitary,KW; TG,unknown,NA
+MEMEGSAB,Megachilidae,Megachile,Argyropile,sabinensis,oligolectic,Asteraceae,Hurd et al. 1980,solitary,KW; TG,unknown,NA
+MEMEGSID,Megachilidae,Megachile,Pseudocentron,sidalceae,polylectic,NA,Hurd & Linsley 1975,solitary,KW; TG,unknown,NA
+MEMEGSPI,Megachilidae,Megachile,Chelostomoides,spinotulata,polylectic,NA,KW; TG; Hurd & Linsley 1975,solitary,TG,unknown,NA
+MEMEGSUB,Megachilidae,Megachile,Megachiloides,sublaurita,polylectic,NA,KW,solitary,TG,unknown,NA
+MEMEGTOW,Megachilidae,Megachile,Argyropile,townsendiana,polylectic,NA,Hurd et al. 1980,solitary,KW; TG,unknown,NA
+MEMEGUMA,Megachilidae,Megachile,Megachiloides,umatillensis,unknown,NA,KW,solitary,KW; TG,unknown,NA
+MEMEGXER,Megachilidae,Megachile,Megachiloides,xerophila,polylectic,NA,KW; Minckley et al. 1999,solitary,KW; TG,unknown,NA
+MEOSM001,Megachilidae,Osmia,Melanosmia,1,unknown,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSM002,Megachilidae,Osmia,Melanosmia,2,unknown,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMAEN,Megachilidae,Osmia,Melanosmia,aff_enixa,unknown,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMCER,Megachilidae,Osmia,Melanosmia,cerasi,polylectic,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMCOL,Megachilidae,Osmia,Helicosmia,coloradensis,oligolectic,Asteraceae,KW; Hurd et al. 1980,solitary,KW; TG,adult,Stemkovski et al. 2020
+MEOSMCOR,Megachilidae,Osmia,Melanosmia,cordata,polylectic,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMGAU,Megachilidae,Osmia,Melanosmia,gaudiosa,oligolectic,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMINT,Megachilidae,Osmia,Melanosmia,integra,unknown,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMLAT,Megachilidae,Osmia,Trichinosmia,latisulcata,oligolectic,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMLIG,Megachilidae,Osmia,Osmia,lignaria,unknown,NA,NA,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMLIO,Megachilidae,Osmia,Melanosmia,liogastra,polylectic,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMPHE,Megachilidae,Osmia,Melanosmia,phenax,polylectic,NA,Hurd & Linsley 1975,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMPRU,Megachilidae,Osmia,Melanosmia,prunorum,polylectic,NA,KW,solitary,KW; TG,adult,Danforth et al. 2019
+MEOSMTRE,Megachilidae,Osmia,Melanosmia,trevoris,unknown,NA,KW,solitary,KW; TG,adult,Stemkovski et al. 2020
+MEOSMWAT,Megachilidae,Osmia,Melanosmia,watsoni,unknown,NA,KW; TG,solitary,KW; TG,adult,Danforth et al. 2019
+MESTEIMP,Megachilidae,Stelis,Stelis,imperialis,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+MESTEPAL,Megachilidae,Stelis,Stelis,palmarum,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+MESTEROB,Megachilidae,Stelis,Stelis,robertsoni,parasitic,NA,KW,parasitic,KW; TG,prepupae,Danforth et al. 2019
+METRALAR,Megachilidae,Trachusa,Heteranthidium,larreae,oligolectic,Larrea,KW; Minckley et al. 1999; Hurd & Linsley 1975,solitary,KW; TG,prepupae,Danforth et al. 2019
+MLHESLAR,Melittidae,Hesperapis,Amblyapis,larreae,oligolectic,Larrea,KW; Minckley et al. 1999; Hurd & Linsley 1975,unknown,NA,prepupae,Danforth et al. 2019
+MLHESTRO,Melittidae,Hesperapis,Hesperapis,trochanterata,unknown,NA,KW,unknown,NA,prepupae,Danforth et al. 2019

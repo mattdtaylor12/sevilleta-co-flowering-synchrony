@@ -1,0 +1,1163 @@
+---
+title: "Co-flowering Synchrony and Bee Stability"
+author: "M.D. Taylor & M. Chandar"
+date: "2026-07-02"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    code_folding: hide
+---
+## Introduction
+This R markdown contains all the analyses from the Co-flowering Synchrony & Bee Stability manuscript. This script contains 4 parts:
+
+* Calculation of co-flowering synchrony using a circular statistics method
+* Analysis 1: Changes in co-flowering synchrony over time
+* Analysis 2: Climate predictors of co-flowering synchrony
+* Analysis 3: Co-flowering synchrony and bee stability
+
+
+This script requires the following data files (in order of use):
+
+ * SEV phenology data
+ * list of animal-pollinated SEV plants
+ * SEV met49 and met50 climate data
+ * Pacific Decadal Oscillation data 
+ * SEV bee data
+
+### Load packages 
+```{r}
+# Clear environment
+rm(list = ls())
+
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(ggplot2)
+library(data.table)
+library(Directional) #Note : Mac users may need to install "X-quartz" to use this package
+library(sfsmisc)
+library(scales)
+library(reshape2)
+library(data.table)
+library(ggthemes)
+library(cowplot)
+library(ggpubr)
+library(codyn)
+library(nlme)
+library(car)
+library(visreg)
+library(MuMIn)
+library(emmeans)
+library(piecewiseSEM)
+library(nlme)
+library(vegan)
+library(plm)
+library(lmerTest)
+library(broom)
+
+# Shared manuscript figure theme (full box, large bold fonts) + ecosystem palette
+ms_theme <- ggplot2::theme_classic(base_size = 16) +
+  ggplot2::theme(
+    panel.border     = ggplot2::element_rect(fill = NA, colour = "black", linewidth = 1.1),
+    axis.line        = ggplot2::element_blank(),
+    axis.title       = ggplot2::element_text(face = "bold", size = 18),
+    axis.text        = ggplot2::element_text(face = "bold", size = 13),
+    strip.text       = ggplot2::element_text(face = "bold", size = 17),
+    strip.background = ggplot2::element_blank(),
+    legend.title     = ggplot2::element_text(face = "bold", size = 13),
+    legend.text      = ggplot2::element_text(face = "bold", size = 12))
+ms_site_colors <- c("B" = "#2c6c9c", "G" = "#8a8a8a", "C" = "#5f7d33")
+```
+
+### Load data
+```{r load pheno data}
+# SEV Phenology data
+phen <- read.csv("sev137_plant_phenology.2023.csv", stringsAsFactors = FALSE) 
+# List of animal-pollinated plants compiled by E. Martin
+bee_poll_list<- read.csv("animal_poll_floral_async.csv") %>% rename(species = kartez)
+```
+
+## Calculating Synchrony (co-flowering overlap)
+We used co-flowering overlap as a metric of floral synchrony. This method uses circular statistics to generate overlap values for all species pairs. This calculation is computationally intensive, so it is possible to skip to Analysis 1 and load in the resulting csv directly.
+
+Wrangle Phenology Data and subset to animal-pollinated species 
+```{r phen data wrangling}
+# Ensure essential columns exist
+required_cols <- c("date", "site", "web", "species", "reproduction")
+stopifnot(all(required_cols %in% colnames(phen)))
+
+# Remove NA months and unwanted sites
+phen <- phen %>%
+  filter(!is.na(date), site == "B"|site == "C"|site == "G") %>%
+  mutate(
+    year = as.integer(substr(date, 1, 4)),
+    month = as.integer(substr(date, 6, 7)),
+    day = as.integer(substr(date, 9, 10))
+  )
+
+#Keep only plant species that are animal-pollinated 
+phen_bee <- phen %>% semi_join(bee_poll_list, by = "species")
+
+# Keep only records with flowering reproduction codes (exclude "Z", "B", "FR")
+# This gives us a data-set with abundance of plants that ARE IN FLOWER for each month
+phen_flo <- phen_bee %>%
+  filter(!reproduction %in% c("Z", "B", "FR"))
+
+
+# Summarize flowering counts by species/site/year/month/web
+
+# Detach plyr to avoid conflicts with dplyr
+if ("package:plyr" %in% search()) detach("package:plyr", unload = TRUE)
+
+# There are 5 webs at each site, which are surveyed each month within each year.
+# This function summarizes the number of flowering individuals of a species in each web/site/month/year.
+phen_flower <- phen_flo %>%
+  group_by(year, month, site, web, species) %>%
+  summarise(flospec_count = n(), .groups = "drop") %>%
+  as.data.frame()
+
+# Pivot wider 
+wide_flower <- phen_flower %>%
+  pivot_wider(
+    names_from = species,
+    values_from = flospec_count,
+    values_fill = 0
+  )
+
+# Convert back to long format if needed
+phen_flower_long <- wide_flower %>%
+  pivot_longer(
+    cols = -c(year, month, site, web),
+    names_to = "species",
+    values_to = "flospec_count"
+  )
+
+sort(unique(phen_flower_long$species))
+```
+
+Generate daily-resolution distributions
+```{r von mises kernal density}
+# Helper to compute circular kernel density estimate (von Mises)
+densityFit <- function(x_rad, grid_rad, bandwidth) {
+  # ensure input is numeric radians in [0, 2π]
+  n <- length(x_rad)
+  if (n == 0) return(rep(0, length(grid_rad)))
+  
+  # von Mises kernel density estimation manually
+  res <- sapply(grid_rad, function(theta) {
+    sum(exp(bandwidth * cos(theta - x_rad))) / (2 * pi * besselI(bandwidth, 0))
+  })
+  return(res)  # raw von Mises density; normalized to unit area in pheno.imputation
+}
+
+pheno.imputation <- function(rownum, ref_list, dat) {
+  a <- ref_list[rownum, ]
+  
+  # Filter for the species/year/site/WEB combination
+  sub <- dat %>%
+    filter(species == a$species,
+           year == a$year,
+           site == a$site,
+           web == a$web)
+  
+  # Skip if empty
+  if (nrow(sub) == 0) return(NULL)
+  
+  # Skip if missing or all zero flowering counts
+  if (all(is.na(sub$flospec_count)) || max(sub$flospec_count, na.rm = TRUE) == 0)
+    return(NULL)
+  
+  # Map month to approximate DOY
+  month_to_doy <- c(`3`=80, `4`=110, `5`=140, `6`=170, `7`=200,
+                    `8`=230, `9`=260, `10`=290)
+  sub <- sub %>%
+    mutate(DOY = month_to_doy[as.character(month)]) %>%
+    filter(!is.na(DOY))
+  
+  if (nrow(sub) == 0) return(NULL)
+  
+  # Count-shaped sample: repeat each month's DOY by its flowering count so the
+  # kernel density reflects the WITHIN-species relative flowering intensity
+  # across months. The density is normalized to unit area below, so between-
+  # species magnitude (and the 10-individual censoring ceiling) drops out and
+  # the overlap is the coefficient of overlapping (Ridout & Linkie 2009).
+  lf <- rep(sub$DOY, times = sub$flospec_count)
+  if (length(lf) == 0) return(NULL)
+  
+  # Convert to radians for circular KDE
+  lf_rad <- (lf / 365) * 2 * pi
+  day_rad <- (1:365 / 365) * 2 * pi
+  
+  # Compute von Mises kernel
+  band <- vm.kde(lf_rad, thumb = "tay", rads = TRUE)$h
+  if (is.nan(band) || is.null(band)) band <- 16.13
+  
+  circ_dist <- densityFit(lf_rad, day_rad, band)
+  # Normalize to a unit-area probability density (Ridout & Linkie 2009) so that
+  # overlap is the coefficient of overlapping, not an abundance-weighted metric
+  circ_dist <- circ_dist / sum(circ_dist, na.rm = TRUE)
+  
+  data.frame(
+    DOY = 1:365,
+    abund = circ_dist,
+    year = a$year,
+    species = a$species,
+    site = a$site,
+    web = a$web,
+    band = band
+  )
+}
+```
+
+Apply to all combinations
+```{r apply to combos, eval=FALSE}
+plant_list <- phen_flower_long %>%
+  select(year, site, species, web) %>%
+  distinct() %>%
+  as.data.frame()
+
+datalist <- list()
+for (i in seq_len(nrow(plant_list))) {
+  tryCatch({
+    dat_i <- pheno.imputation(i, plant_list, phen_flower_long)
+    if (!is.null(dat_i)) {
+      datalist[[length(datalist) + 1]] <- dat_i
+    }
+    if (i %% 100 == 0) cat("Processed", i, "of", nrow(plant_list), "combinations\n")
+  }, error = function(e) {
+    message("Error at row ", i, ": ", e$message)
+  })
+}
+
+# Combine
+pheno_distributions <- data.table::rbindlist(datalist, fill = TRUE)
+summary(pheno_distributions)
+```
+
+Generate species-species pairs per year/site/web
+NOTE: 
+ * There were 2 year-site-web groups in which only one species was present (and thus, co-flowering cannot be calculated) 
+ * We used `phen_distrib_check %>% count(year, site, web, name = "n_species") %>% filter(n_species < 2)` to confirm the above
+ * We removed these groups from the data set using `if (length(.x) < 2) return(NULL)`
+ 
+```{r generate pairs, eval=FALSE}
+phen_distrib_check <- pheno_distributions %>%
+  select(year, site, web, species) %>%
+  distinct()
+summary(phen_distrib_check)
+
+# Generate species-species pairs per year/site/web
+
+plant_pairs <- phen_distrib_check %>%
+  group_by(year, site, web) %>%
+  summarise(species_list = list(species), .groups = "drop") %>%
+  mutate(pairs = map(species_list, ~{
+    if (length(.x) < 2) return(NULL) # ignores year/site/web grps with <2 species
+    t(combn(.x, 2)) %>% as.data.frame() })) %>%
+  select(-species_list) %>%
+  unnest(pairs) %>%
+  rename(species.x = V1, species.y = V2) %>%
+  mutate(pair_id = pmap_chr(list(species.x, species.y),
+        ~paste(sort(c(..1, ..2)), collapse = "_")),
+         row = row_number()) %>%
+  distinct(year, site, web, pair_id, .keep_all = TRUE)
+
+summary(plant_pairs)
+```
+
+Calculate interspecific overlap
+```{r calculate overlap, eval=FALSE}
+inter_synchrony <- function(rownum, ref_pairs, dat) {
+  a <- ref_pairs[rownum, ]
+
+  sub1 <- dat %>% filter(species == a$species.x, year == a$year, site == a$site, web == a$web)
+  sub2 <- dat %>% filter(species == a$species.y, year == a$year, site == a$site, web == a$web)
+
+  d <- data.frame(
+    DOY = sub1$DOY,
+    species1 = sub1$abund,
+    species2 = sub2$abund
+  )
+
+  d$min <- pmin(d$species1, d$species2)
+
+  # Coefficient of overlapping (Delta): the shared area of the two unit-area
+  # flowering densities (Weitzman 1970; Ridout & Linkie 2009). Because each
+  # density integrates to 1, Delta ranges 0 (no overlap) to 1 (identical).
+  delta <- integrate.xy(d$DOY, d$min)
+
+  data.frame(
+    year = a$year,
+    species.x = a$species.x,
+    species.y = a$species.y,
+    site = a$site,
+    web = a$web,
+    overlap = delta
+  )
+}
+
+# Loop through all pairs
+datalist_overlap <- list()
+
+library(furrr)
+library(data.table)
+library(sfsmisc)   # for integrate.xy
+# 
+# # Are all 5 transects sampled at each site every year? If yes, we are losing data somewhere 
+# plant_pairs_test <- plant_pairs %>%
+#   filter(year == 2010, site == "C", web == 2) %>%
+#   slice_sample(n = 10)
+# 
+# test<- plant_pairs %>%
+#   count(year, site, web)
+# 
+# 
+# # Run the loop for just this subset
+# datalist_overlap_test <- vector("list", length = nrow(plant_pairs_test))
+# 
+# for (i in 1:nrow(plant_pairs_test)) {
+#   tryCatch({
+#     dat <- inter_synchrony(i, plant_pairs_test, pheno_distributions)
+#     if (!is.null(dat)) datalist_overlap_test[[i]] <- dat
+#   }, error = function(e) {
+#     message("Error in pair ", i, ": ", e$message)
+#     NULL
+#   })
+# }
+# 
+# # Combine results
+# plant_plant_overlap_test <- rbindlist(datalist_overlap_test, fill = TRUE)
+# 
+# # Inspect
+# summary(plant_plant_overlap_test)
+# 
+# #####VISUALIZATION OF OVERLAP
+# library(ggplot2)
+# library(dplyr)
+# 
+# # Select the two species
+# species1 <- plant_plant_overlap_test$species.x[3]
+# species2 <- plant_plant_overlap_test$species.y[4]
+# 
+# # Filter phenology data
+# pheno_plot_data <- pheno_distributions %>%
+#   filter(year == 2010, 
+#          site == plant_plant_overlap_test$site[1], 
+#          species %in% c(species1, species2))
+# 
+# # Smooth curves for each species
+# smooth_data <- pheno_plot_data %>%
+#   group_by(species) %>%
+#   arrange(DOY) # geom_smooth will handle smoothing
+# 
+# # Optional: compute overlap range (rough)
+# overlap_data <- pheno_plot_data %>%
+#   filter(species %in% c(species1, species2)) %>%
+#   group_by(species) %>%
+#   summarise(min_DOY = min(DOY[abund > 0]),
+#             max_DOY = max(DOY[abund > 0])) %>%
+#   summarise(overlap_start = max(min_DOY), overlap_end = min(max_DOY))
+# 
+# # Plot
+# ggplot(pheno_plot_data, aes(x = DOY, y = abund, color = species)) +
+#   geom_smooth(se = FALSE, span = 0.3, size = 1.2) +
+#   # geom_rect(data = overlap_data, 
+#             # aes(xmin = overlap_start, xmax = overlap_end, ymin = 0, ymax = 1),
+#            # fill = "grey", alpha = 0.3, inherit.aes = FALSE) +
+#   labs(title = paste("Phenology overlap:", species1, "and", species2),
+#        x = "Day of Year", y = "Abundance") +
+#   theme_minimal()
+
+```
+
+```{r run_overlap_parallel, eval=FALSE}
+library(data.table)
+library(future)
+library(furrr)
+
+n <- nrow(plant_pairs)
+years <- plant_pairs$year
+sites <- plant_pairs$site
+webs <- plant_pairs$web
+species_x <- plant_pairs$species.x
+species_y <- plant_pairs$species.y
+
+plan(multisession, workers = parallel::detectCores() - 1)
+
+# Run overlap calculation in parallel, returning just a single numeric value per pair
+overlaps <- future_map_dbl(1:n, function(i) {
+  tryCatch({
+    # Run inter_synchrony and extract only the 'overlap' column
+    inter_synchrony(i, plant_pairs, pheno_distributions)$overlap
+  }, error = function(e) NA_real_)
+}, .progress = TRUE)
+
+plan(sequential)
+
+# Combine into a clean data.table
+plant_plant_overlap <- data.table(
+  year = plant_pairs$year,
+  site = plant_pairs$site,
+  web = plant_pairs$web,
+  species.x = plant_pairs$species.x,
+  species.y = plant_pairs$species.y,
+  overlap = overlaps
+)
+
+str(plant_plant_overlap)
+summary(plant_plant_overlap)
+
+# Save output
+write.csv(plant_plant_overlap, "plant_plant_overlapthru2024.csv", row.names = FALSE)
+```
+Now we have generated a csv containing the co-flowering overlap values of each species pair in a given year/site/web. 
+We will use this data for all downstream analyses.
+
+## Analysis 1: Co-flowering overlap over time
+1.1 How has overall floral synchrony changed over time?
+1.2 How has floral synchrony changed over time across three dryland ecosystem types?
+
+### Prepare data
+We will load in the co-flowering data from above and calculate average co-flowering overlap
+```{r}
+# Load co-flowering data
+overlap <- read.csv("plant_plant_overlapthru2024.csv")
+overlap <- overlap %>%
+  filter(!site %in% c("J", "P", "JSAV"))
+
+overlap$site <- as.factor(overlap$site)
+overlap$species.x <- as.factor(overlap$species.x)
+overlap$species.y <- as.factor(overlap$species.y)
+
+# Calculate yearly average overlap for each transect
+# Summarize yearly overlap per site per web_id over time
+overlap <- overlap %>%
+  dplyr:: group_by(site, year, web) %>%
+  dplyr:: summarise(
+    mean_overlap = mean(overlap, na.rm = TRUE),
+    se_overlap = sd(overlap, na.rm = TRUE)/sqrt(n())
+  ) %>%
+  dplyr:: ungroup()
+summary(overlap)
+
+```
+
+Load climate data and merge with co-flowering data
+```{r}
+# Load climate data (need to call dplyr)
+PDO <- read.csv("pdo.timeseries.ersstv5.csv") %>% filter (year > 1998) %>% 
+  dplyr:: group_by(year) %>% 
+  dplyr:: summarize(mean(PDO)) %>% 
+  dplyr:: rename(annual.PDO = `mean(PDO)`)
+precip <- read.csv("climatebyyear_updated.csv") %>% select(-c(SPEI.comp.fall, SPEI.comp.spring))
+precip.cv <- read.csv("precipitation_CV.csv")
+precip <- merge(precip, precip.cv, by = c("site", "year"))
+climate <-  merge(precip, PDO, by = "year", all.y = TRUE)
+climate$annual.precip <- climate$season.precip.fall + climate$season.precip.spring 
+
+# Assign met stations
+overlap <- overlap %>%
+  mutate(met_station = case_when(
+    site %in% c("G", "C") ~ "met49",
+    site == "B" ~ "met50"))
+
+climate <- climate %>%
+  dplyr::rename(met_station = site)
+
+# Merge climate data with co-flowering data 
+overlap <- merge(
+  overlap,
+  climate,
+  by.x = c("year", "met_station"),
+  by.y = c("year", "met_station"),
+  all.x = TRUE) 
+
+# add 2001 PDO back in for met50 2001 rows
+overlap$annual.PDO[overlap$met_station == "met50" & overlap$year == 2001] <- -0.7419167
+
+# Change web to web_id to make unique transect identifier (needed for AR models)
+overlap <- overlap %>%
+  mutate(web_id = interaction(site, web)) %>% 
+  mutate(site = factor(site, levels = c("B", "G", "C"))) 
+
+# Remove rows where se = NA, indicating only one overlap value
+# Confirmed that this is the case to 2003 creosote outlier
+overlap <- overlap %>% drop_na(se_overlap)
+
+write.csv(overlap, "plant_overlap_climate_filtered.csv", row.names = FALSE)
+
+#to read file back in, uncomment line below
+#overlap<- read.csv("plant_overlap_climate_filtered.csv")
+```
+
+### 1.1 Change in synchrony over time (ALL SITES)
+```{r}
+# Q1: Is there a linear change in floral synchrony over time?
+# two-stage: year is a landscape-level variable (all webs share the same
+# year value), so lmer inflates DenDF to ~286 by treating annual rows as independent.
+# alternatively we can extract one slope per web (Stage 1), then test slopes (Stage 2).
+# This correctly makes DenDF 14 (global) and 12 (site contrast). Because transect (web) is the unit of replication
+
+overlap_s <- overlap %>% mutate(year_scaled = as.numeric(scale(year)))
+
+# Stage 1: one temporal slope per web (15 slopes)
+web_slopes_year <- overlap_s %>%
+  group_by(site, web_id) %>%
+  do(tidy(lm(mean_overlap ~ year_scaled, data = .))) %>%
+  filter(term == "year_scaled") %>%
+  ungroup()
+
+# Stage 2a: global trend — F_{1,14}
+global_year_model <- lm(estimate ~ 1, data = web_slopes_year)
+s <- summary(global_year_model)$coefficients
+cat(sprintf("Global trend: F_{1,14} = %.3f, p = %.4f  (beta = %.4f, SE = %.4f)\n",
+    s[1,"t value"]^2, s[1,"Pr(>|t|)"], s[1,"Estimate"], s[1,"Std. Error"]))
+# F_{1,14} = 4.154, p = 0.061 — marginal, not significant
+
+# Stage 2b: ecosystem contrast — F_{2,12}
+site_year_model <- lm(estimate ~ site, data = web_slopes_year)
+a_site <- anova(site_year_model)
+cat(sprintf("Ecosystem contrast: F_{%d,%d} = %.3f, p = %.4f\n",
+    a_site[1, "Df"], a_site[2, "Df"], a_site[1, "F value"], a_site[1, "Pr(>F)"]))
+
+```
+
+### 1.2 Change in synchrony over time by SITE
+```{r}
+#  per-site trends from the two-stage slopes above
+# Each site has 5 webs F_{1,4} per site (5 webs - 1 = 4 df)
+
+for (s in c("B","G","C")) {
+  lab <- c(B="Plains Grassland", G="Desert Grassland", C="Desert Shrubland")
+  sub <- web_slopes_year[web_slopes_year$site == s, ]
+  m   <- lm(estimate ~ 1, data = sub)
+  co  <- summary(m)$coefficients
+  cat(sprintf("%s: F_{1,4} = %.3f, p = %.4f  (beta = %.4f, SE = %.4f)\n",
+      lab[s], co[1,"t value"]^2, co[1,"Pr(>|t|)"], co[1,"Estimate"], co[1,"Std. Error"]))
+}
+# CORRECTED results:
+#   Plains Grassland:  F_{1,4} = 0.882, p = 0.401
+#   Desert Grassland:  F_{1,4} = 2.336, p = 0.201
+#   Desert Shrubland:  F_{1,4} = 1.411, p = 0.301
+
+```
+
+### Figure 1 - Synchrony tracks PDO over time
+```{r}
+# PLOT synchrony over time with model fits 
+site_colors <- c("B" = "deepskyblue4", "G" = "grey60", "C" = "darkolivegreen")
+site_labels <- c("G" = "Desert Grassland", "B" = "Plains Grassland","C" = "Desert Shrubland")
+
+# PDO ONLY PLOT
+PDO.plot.raw <- ggplot(overlap, aes(x = year, y=annual.PDO)) +
+  scale_linetype_manual(name = NULL, values = c("annual.PDO" = "dotted"), labels = c("annual.PDO"))+
+  geom_line(data = overlap, aes(y = annual.PDO, linetype = "annual.PDO"),color = "black") +
+  scale_y_continuous(
+  name = "PDO", position = "right") +
+  labs(x = "Year", y = "PDO") +
+  theme_classic(base_size = 20) +
+  facet_wrap(~ site,  ncol = 1, labeller = labeller(site = site_labels)) +
+  guides(color = "none")
+PDO.plot.raw
+ggsave("FIGURE1_PDOraw.svg", PDO.plot.raw, height = 12, width = 14)
+ggsave("FIGURE1_PDOraw.png", PDO.plot.raw, height = 12, width = 14, dpi = 300)
+
+
+# OVERLAP ONLY PLOT
+overlap.plot<- overlap %>% group_by(site, year, annual.PDO) %>% 
+    summarise(
+    mean_yr_overlap = mean(mean_overlap, na.rm = TRUE),
+    se_overlap = sd(mean_overlap, na.rm = TRUE)/sqrt(n())
+  ) %>% ungroup()
+
+overlap.plot.raw <- ggplot(overlap.plot, aes(x = year, y = mean_yr_overlap)) +
+  geom_point(aes(y = mean_yr_overlap, color = site), size = 2) +
+  scale_linetype_manual(name = NULL, values = c("mean_yr_overlap" = "solid"), labels = c("mean_yr_overlap"))+
+  geom_line(data = overlap.plot, aes(y=mean_yr_overlap, color = site, linetype = "mean_yr_overlap"))+
+  scale_color_manual(values = site_colors, labels = site_labels) +
+  geom_errorbar(aes(ymin = mean_yr_overlap - se_overlap, ymax = mean_yr_overlap + se_overlap, color = site), width = 0) +
+  scale_y_continuous(
+  name = "Co-flowering Overlap") +
+  labs(x = "Year", y = "Mean Co-Flowering Synchrony") +
+  theme_classic(base_size = 20) +
+  facet_wrap(~ site,  ncol = 1, labeller = labeller(site = site_labels)) +
+  guides(color = "none")
+overlap.plot.raw
+ggsave("FIGURE1_overlapraw.svg", overlap.plot.raw, height = 12, width = 14)
+ggsave("FIGURE1_overlapraw.png", overlap.plot.raw, height = 12, width = 14, dpi = 300)
+
+```
+Combine raw plots in Adobe Illustrator to create dual-axes for figure 1.
+
+## Analysis 2: Co-flowering overlap & Climate
+
+### 2.1 Synchrony & Climate (ALL SITES)
+
+MODEL SELECTION 1 - Temporal Autocorrelation
+* Find best autocorrelation using linear model
+* Next step uses best AR model to test non-linear models 
+```{r}
+oc <- overlap[!is.na(overlap$season.precip.spring) & !is.na(overlap$annual.PDO), ]
+oc$year_fact <- as.factor(oc$year)
+
+# FALL/MONSOON PRECIP
+lm_overlap_fall_precip <- lme(mean_overlap ~ season.precip.fall * site, random = list(web_id = ~1, year_fact = ~1), method = "ML", data = oc, na.action = na.omit)
+lm_overlap_fall_precip_AR1 <- lme(mean_overlap ~ season.precip.fall * site, random = ~1|web_id, method = "ML", correlation=corAR1(form=~year|web_id), data = oc, na.action = na.omit)
+lm_overlap_fall_precip_AR2 <- lme(mean_overlap ~ season.precip.fall * site, random = ~1|web_id, method = "ML", correlation=corARMA(form=~year|web_id,p=2), data = oc, na.action = na.omit)
+  
+AIC.table1 <- model.sel(lm_overlap_fall_precip, lm_overlap_fall_precip_AR1, lm_overlap_fall_precip_AR2)
+AIC.table1
+# lm_overlap_fall_precip is the best model
+
+# SPRING PRECIP
+lm_overlap_spring_precip <- lme(mean_overlap ~ season.precip.spring * site, random = list(web_id = ~1, year_fact = ~1), method = "ML", data = oc, na.action = na.omit)
+lm_overlap_spring_precip_AR1 <- lme(mean_overlap ~ season.precip.spring * site, random = ~1|web_id, method = "ML", correlation=corAR1(form=~year|web_id), data = oc, na.action = na.omit)
+lm_overlap_spring_precip_AR2 <- lme(mean_overlap ~ season.precip.spring * site, random = ~1|web_id, method = "ML", correlation=corARMA(form=~year|web_id,p=2), data = oc, na.action = na.omit)
+
+AIC.table2 <- model.sel(lm_overlap_spring_precip, lm_overlap_spring_precip_AR1, lm_overlap_spring_precip_AR2)
+AIC.table2
+# lm_overlap_spring_precip is the best model
+
+# ANNUAL PRECIP
+lm_overlap_annual_precip <- lme(mean_overlap ~ annual.precip * site, random = list(web_id = ~1, year_fact = ~1), method = "ML", data = oc, na.action = na.omit)
+lm_overlap_annual_precip_AR1 <- lme(mean_overlap ~ annual.precip * site, random = ~1|web_id, method = "ML", correlation=corAR1(form=~year|web_id), data = oc, na.action = na.omit)
+lm_overlap_annual_precip_AR2 <- lme(mean_overlap ~ annual.precip * site, random = ~1|web_id, method = "ML", correlation=corARMA(form=~year|web_id,p=2), data = oc, na.action = na.omit)
+
+AIC.table3 <- model.sel(lm_overlap_annual_precip, lm_overlap_annual_precip_AR1, lm_overlap_annual_precip_AR2)
+AIC.table3
+# lm_overlap_annual_precip is the best model
+
+# PDO
+lm_overlap_PDO <- lme(mean_overlap ~ annual.PDO * site, random = list(web_id = ~1, year_fact = ~1), method = "ML", data = oc, na.action = na.omit)
+lm_overlap_PDO_AR1 <- lme(mean_overlap ~ annual.PDO * site, random = ~1|web_id, method = "ML", correlation=corAR1(form=~year|web_id), data = oc, na.action = na.omit)
+lm_overlap_PDO_AR2 <- lme(mean_overlap ~ annual.PDO * site, random = ~1|web_id, method = "ML", correlation=corARMA(form=~year|web_id,p=2), data = oc, na.action = na.omit)
+AIC.table4 <- model.sel(lm_overlap_PDO, lm_overlap_PDO_AR1, lm_overlap_PDO_AR2)
+AIC.table4
+# lm_overlap_PDO_AR1 is the best model (delta = 4 w/ no AR)
+
+# PRECIP CV
+lm_overlap_precip_CV <- lme(mean_overlap ~ cv.daily.precip * site, random = list(web_id = ~1, year_fact = ~1), method = "ML", data = oc, na.action = na.omit)
+lm_overlap_precip_CV_AR1 <- lme(mean_overlap ~ cv.daily.precip * site, random = ~1|web_id, method = "ML", correlation=corAR1(form=~year|web_id), data = oc, na.action = na.omit)
+lm_overlap_precip_CV_AR2 <- lme(mean_overlap ~ cv.daily.precip * site, random = ~1|web_id, method = "ML", correlation=corARMA(form=~year|web_id,p=2), data = oc, na.action = na.omit)
+
+AIC.table5 <- model.sel(lm_overlap_precip_CV, lm_overlap_precip_CV_AR1, lm_overlap_precip_CV_AR2)
+AIC.table5
+# lm_overlap_precip_CV is the best model
+
+# Delta AIC does not differ that much between any except for PDO
+```
+
+MODEL SELECTION 2 - Non-linear fits using best models from above
+Since almost none of the above best models had temporal autocorrelation, we opted to swap to lmer
+```{r}
+# Monsoon precip
+lm_overlap_fall_precip <- lme(mean_overlap ~ season.precip.fall * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_fall_precip2 <- lme(mean_overlap ~ poly(season.precip.fall, 2) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_fall_precip3 <- lme(mean_overlap ~ poly(season.precip.fall, 3) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+
+# Spring precip
+lm_overlap_spring_precip <- lme(mean_overlap ~ season.precip.spring * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_spring_precip2 <- lme(mean_overlap ~ poly(season.precip.spring, 2) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_spring_precip3 <- lme(mean_overlap ~ poly(season.precip.spring, 3) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+
+# Annual precip
+lm_overlap_annual_precip <- lme(mean_overlap ~ annual.precip * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_annual_precip2 <- lme(mean_overlap ~ poly(annual.precip, 2) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_annual_precip3 <- lme(mean_overlap ~ poly(annual.precip, 3) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+
+# PDO
+lm_overlap_PDO <- lme(mean_overlap ~ annual.PDO * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_PDO2 <- lme(mean_overlap ~ poly(annual.PDO, 2) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_PDO3 <- lme(mean_overlap ~ poly(annual.PDO, 3) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+
+# Precip CV
+lm_overlap_precip_CV <- lme(mean_overlap ~ cv.daily.precip * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_precip_CV2 <- lme(mean_overlap ~ poly(cv.daily.precip, 2) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+lm_overlap_precip_CV3 <- lme(mean_overlap ~ poly(cv.daily.precip, 3) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+# ================================
+# Compare models with AICc
+# ================================
+AIC.table <- model.sel(lm_overlap_fall_precip, lm_overlap_fall_precip2,
+                       lm_overlap_fall_precip3, lm_overlap_spring_precip,
+                       lm_overlap_spring_precip2, lm_overlap_spring_precip3,
+                       lm_overlap_annual_precip, lm_overlap_annual_precip2,
+                       lm_overlap_annual_precip3, lm_overlap_PDO, lm_overlap_PDO2, lm_overlap_PDO3,
+                       lm_overlap_precip_CV, lm_overlap_precip_CV2, lm_overlap_precip_CV3)
+AIC.table
+# Best model: SPRING precipitation (poly 2) is the best climate predictor of floral synchrony across sites!!
+# Tied model: Spring precip (poly 3), highest ranked model (delta 1.4) but we went with simpler model
+# 3rd best model: Monsoon (Fall) precip (poly 3) (delta 7.2)
+# PDO (linear) is the 7th best model (delta 30)
+```
+
+Results from Spring precip and PDO models
+crossed random effects lme() web_id absorbs between-transect baseline,
+year_fact absorbs annual landscape-level climate clustering.
+Site effect tested at DenDF = 12; climate effects at DenDF ≈ 269-272.
+```{r}
+# SPRING PRECIP — crossed random effects
+best_model <- lme(mean_overlap ~ poly(season.precip.spring, 2) * site,
+                  random = list(web_id = ~1, year_fact = ~1),
+                  data = oc, method = "ML", na.action = na.omit)
+
+aov_best <- anova(best_model, type = "marginal")
+cat("Cool-season precipitation model (co-flowering synchrony ~ poly(precip, 2) * ecosystem):\n")
+for (trm in rownames(aov_best)[-1]) {   # skip intercept
+  cat(sprintf("  %-34s F_{%d,%d} = %.3f, p = %.4f\n", trm,
+      aov_best[trm, "numDF"], aov_best[trm, "denDF"],
+      aov_best[trm, "F-value"], aov_best[trm, "p-value"]))
+}
+# F_{2,269} = 8.86, p = 0.0002  (site: F_{2,12} = 2.08, p = 0.168)
+# Interaction precip x site: F_{4,269} = 0.783, p = 0.537
+
+emtrends(best_model, ~ site, var = "season.precip.spring", max.degree = 2)
+# linear slopes (beta ± SE):
+#   Plains Grassland (B): -0.0013 ± 0.0003
+#   Desert Grassland (G): -0.0017 ± 0.0003
+#   Desert Shrubland (C): -0.0019 ± 0.0003
+
+qqnorm(resid(best_model))
+hist(resid(best_model))
+
+# PDO — crossed random effects
+PDO_model <- lme(mean_overlap ~ annual.PDO * site,
+                 random = list(web_id = ~1, year_fact = ~1),
+                 data = oc, method = "ML", na.action = na.omit)
+
+aov_pdo <- anova(PDO_model, type = "marginal")
+cat("PDO model (co-flowering synchrony ~ PDO * ecosystem):\n")
+for (trm in rownames(aov_pdo)[-1]) {   # skip intercept
+  cat(sprintf("  %-34s F_{%d,%d} = %.3f, p = %.4f\n", trm,
+      aov_pdo[trm, "numDF"], aov_pdo[trm, "denDF"],
+      aov_pdo[trm, "F-value"], aov_pdo[trm, "p-value"]))
+}
+# F_{1,272} = 9.94, p = 0.0018  (site: F_{2,12} = 2.12, p = 0.163)
+# Interaction PDO x site: F_{2,272} = 0.452, p = 0.637
+
+emtrends(PDO_model, ~ site, var = "annual.PDO")
+# PDO slopes (beta ± SE)
+#   Plains Grassland (B): -0.0295 ± 0.0094
+#   Desert Grassland (G): -0.0409 ± 0.0094
+#   Desert Shrubland (C): -0.0398 ± 0.0094
+```
+
+## Figure 2: Synchrony, PDO, and Precipitation
+```{r}
+site_colors <- ms_site_colors
+site_labels <- c("G" = "Desert Grassland", "B" = "Plains Grassland", "C" = "Desert Shrubland")
+
+yearly_overlap <- overlap %>%
+  dplyr::group_by(site, year) %>%
+  dplyr::summarise(yearly_mean_overlap = mean(mean_overlap, na.rm = TRUE),
+                   yearly_se_overlap   = sd(mean_overlap, na.rm = TRUE)/sqrt(n())) %>%
+  dplyr::ungroup()
+yearly_overlap <- merge(yearly_overlap,
+  overlap %>% select(site, year, season.precip.fall, season.precip.spring, annual.PDO),
+  by = c("site", "year")) %>% distinct(site, year, .keep_all = TRUE)
+
+# across-site fit lines: cool-season precip (quadratic) and PDO (linear)
+lm_spring_precip <- lme(mean_overlap ~ poly(season.precip.spring, 2),
+                  random = list(web_id = ~1, year_fact = ~1), data = oc, method = "ML", na.action = na.omit)
+fitA <- expand.grid(season.precip.spring = seq(min(overlap$season.precip.spring, na.rm = TRUE),
+                    max(overlap$season.precip.spring, na.rm = TRUE), length.out = 1000))
+fitA$pred_sync <- predict(lm_spring_precip, newdata = fitA, level = 0)
+
+lm_PDO <- lme(mean_overlap ~ annual.PDO,
+              random = list(web_id = ~1, year_fact = ~1), data = oc, method = "ML", na.action = na.omit)
+fitB <- expand.grid(annual.PDO = seq(min(overlap$annual.PDO, na.rm = TRUE),
+                    max(overlap$annual.PDO, na.rm = TRUE), length.out = 1000))
+fitB$pred_sync <- predict(lm_PDO, newdata = fitB, level = 0)
+
+panel_levels <- c("Cool season precipitation (mm)", "PDO")
+
+long_clim <- yearly_overlap %>%
+  tidyr::pivot_longer(c(season.precip.spring, annual.PDO),
+                      names_to = "predictor", values_to = "xval") %>%
+  mutate(panel = factor(dplyr::recode(predictor,
+           season.precip.spring = "Cool season precipitation (mm)", annual.PDO = "PDO"),
+           levels = panel_levels))
+
+fitline <- rbind(
+  data.frame(panel = "Cool season precipitation (mm)", xval = fitA$season.precip.spring, pred = fitA$pred_sync),
+  data.frame(panel = "PDO", xval = fitB$annual.PDO, pred = fitB$pred_sync))
+fitline$panel <- factor(fitline$panel, levels = panel_levels)
+
+ann_let <- data.frame(panel = factor(panel_levels, levels = panel_levels), letter = c("A", "B"))
+
+combo.plot <- ggplot(long_clim, aes(xval, yearly_mean_overlap, color = site)) +
+  geom_errorbar(aes(ymin = yearly_mean_overlap - yearly_se_overlap,
+                    ymax = yearly_mean_overlap + yearly_se_overlap),
+                width = 0, linewidth = 0.7, alpha = 0.7) +
+  geom_point(size = 2) +
+  geom_line(data = fitline, aes(xval, pred), color = "black", linewidth = 1.4, inherit.aes = FALSE) +
+  geom_text(data = ann_let, aes(x = -Inf, y = Inf, label = letter), inherit.aes = FALSE,
+            hjust = -0.4, vjust = 1.2, size = 8, fontface = "bold") +
+  scale_color_manual(values = site_colors, labels = site_labels, name = "") +
+  facet_wrap(~panel, ncol = 1, scales = "free_x", strip.position = "bottom") +
+  labs(x = NULL, y = "Co-flowering synchrony") +
+  ms_theme +
+  theme(
+    legend.position      = c(0.99, 1.03),
+    legend.justification = c(1, 1),
+    legend.background    = element_blank(),
+    legend.key           = element_blank(),
+    strip.placement      = "outside",
+    strip.background     = element_blank()
+  )
+
+combo.plot
+ggsave("FIGURE2_ClimateSyn.svg", combo.plot, height = 10, width = 7.8)
+ggsave("FIGURE2_ClimateSyn.png", combo.plot, height = 10, width = 7.8, dpi = 300)
+```
+
+### Figure S1 - Spring Precip over time
+```{r}
+# average cool-season precip of met49 and met50
+climate_avg <- climate %>%
+  group_by(year) %>%
+  summarise(mean.precip.spring = mean(season.precip.spring, na.rm = TRUE),
+            se.precip.spring   = sd(season.precip.spring, na.rm = TRUE)/sqrt(n())) %>%
+  drop_na()
+
+spring.precip.time.plot <- ggplot(climate_avg, aes(year, mean.precip.spring)) +
+  geom_line(linewidth = 1) +
+  geom_errorbar(aes(ymin = mean.precip.spring - se.precip.spring,
+                    ymax = mean.precip.spring + se.precip.spring),
+                width = 0, linewidth = 1, alpha = 0.75) +
+  geom_point(size = 2.5) +
+  labs(x = "Year", y = "Cool season precipitation (mm)") +
+  ms_theme
+
+spring.precip.time.plot
+ggsave("FIGURES1_SpringPrecip.svg", spring.precip.time.plot, height = 10, width = 15)
+ggsave("FIGURES1_SpringPrecip.png", spring.precip.time.plot, height = 10, width = 15, dpi = 300)
+
+# Temporal trend in cool-season precipitation (reported in Figure S1 caption)
+precip_time_lm <- lm(mean.precip.spring ~ year, data = climate_avg)
+precip_time_sum <- summary(precip_time_lm)
+precip_slope <- coef(precip_time_lm)[["year"]]
+precip_F     <- precip_time_sum$fstatistic[["value"]]
+precip_df1   <- precip_time_sum$fstatistic[["numdf"]]
+precip_df2   <- precip_time_sum$fstatistic[["dendf"]]
+precip_P     <- pf(precip_F, precip_df1, precip_df2, lower.tail = FALSE)
+cat(sprintf("Cool-season precip vs year: beta = %.2f mm/yr, F_{%d,%d} = %.2f, P = %.3f, R2 = %.3f\n",
+            precip_slope, precip_df1, precip_df2, precip_F, precip_P, precip_time_sum$r.squared))
+```
+
+## Analysis 3: Co-flowering overlap & Bee Stability 
+### Prepare data
+```{r}
+# import full 2002 - 2019 bee abundance data 
+bee.2019<-read.csv("SEVBeeData2002-2019_revised2023-07-19.csv",stringsAsFactors = T) 
+
+# turn complete sampling month and complete sampling year into factors
+bee.2019$complete_sampling_month <- as.factor(bee.2019$complete_sampling_month)
+bee.2019$complete_sampling_year <- as.factor(bee.2019$complete_sampling_year)
+
+# create unique identifier for each web
+bee.2019$web_ID<-as.factor(bee.2019$transect)
+
+# remove start/end date columns and collapse by month
+bee.2019 <- bee.2019 %>% select (-c("start_date", "end_date", "direction", "color")) %>% 
+  dplyr:: group_by(year, month, web_ID, ecosystem, complete_sampling_year) %>%  
+  dplyr:: summarise(across(where(is.integer), sum))
+
+
+# import Jade's tallied bee data (includes new data from 2020-2021 and some pre-2020 stragglers)
+bee.tally<- read.csv("bee_tally.csv") %>% 
+  separate(col = web_ID,
+           into = c("web_ID", "direction"),
+           sep = 2) %>%
+  separate(col = web_ID,
+           into = c("ecosystem", "web"),
+           sep = 1, remove = FALSE) %>% 
+  filter(!ecosystem %in% c("J", "P"))
+         
+# make wide 
+bee.tally.wide <- bee.tally %>%  pivot_wider(
+  id_cols = c(year, month, web_ID, ecosystem),
+  names_from = code,
+  values_from = abundance,
+  values_fn = sum,
+  values_fill = 0)
+
+# merge tallied data with larger data set 
+bee <- bind_rows(bee.2019, bee.tally.wide) %>%
+  dplyr:: group_by(year, month, web_ID, ecosystem) %>%  
+  dplyr:: summarise(across(where(is.integer), sum),
+            .groups = "drop") %>% 
+  dplyr::mutate(across(5:360, ~ replace_na(.x, 0)))
+summary(bee)
+
+# calculate total bee abundance
+bee$abundance<-rowSums(bee[,5:360])
+summary(bee$abundance)
+
+# calculate richness, diversity, evenness
+bee$richness<-specnumber(bee[,5:360])
+bee$shannonH<-diversity(bee[,5:360])
+bee$evenness<-bee$shannonH/log(bee$richness)
+
+# import phenological synchrony
+async<-read.csv("plant_overlap_climate_filtered.csv",stringsAsFactors = T) 
+
+# create unique identifier for each web
+async$web_ID<-as.factor(paste(async$site,async$web,sep=""))
+bee$web_ID <- as.factor(bee$web_ID)
+# check that they match
+  summary(bee$web_ID) 
+  summary(async$web_ID)
+
+# remove 2016/2017 (partial sampling years)
+bee<- bee %>% filter(!year %in% c("2016", "2017"))
+
+# import M. Kazenel LH trait data
+bee.spec <- read.csv("lhtraits_2023-08-29_forpub.csv")
+#remove bees with unknown or parasitic diet breadth
+bee.spec<- bee.spec %>% filter(diet_breadth != "unknown") %>%  filter(diet_breadth != "parasitic") %>% 
+# some of the species have question marks  
+filter(diet_breadth != "polylectic?") %>% filter(diet_breadth != "oligolectic?") 
+sort(unique(bee.spec$diet_breadth))
+
+# counts for number of gen vs specialist and total
+bee.spec %>% 
+  count(diet_breadth, sort = TRUE)
+# out of 341 species: 86 specialists, 81 generalists 
+
+```
+
+### Calculating Bee Stability - POPULATION  
+This represents population-level stability, calculating individual stability values for each species.
+
+```{r}
+# ============================================================================
+# Bee stability over each species' ACTIVE WINDOW (MAIN) + whole season (SUPPL.)
+# Rare species excluded (< 10 non-zero records). Window = one global, contiguous
+# min-max non-zero month per bee species (across all years/ecosystems/transects);
+# stability = 1 / CV of monthly abundance over those window months each year.
+# ============================================================================
+
+bee_long <- bee %>%
+  select(-c(abundance, richness, shannonH, evenness)) %>%
+  pivot_longer(cols = -c(year, ecosystem, web_ID, month),
+               names_to = "species", values_to = "sp_abundance") %>%
+  inner_join(bee.spec %>% select(code, diet_breadth), by = c("species" = "code"))
+
+# Exclude truly rare species: keep those with >= 10 non-zero species x month records
+keep_species <- bee_long %>%
+  filter(sp_abundance > 0) %>%
+  count(species, name = "n_rec") %>%
+  filter(n_rec >= 10) %>%
+  pull(species)
+bee_long <- bee_long %>% filter(species %in% keep_species)
+
+# One global, contiguous active window (min & max non-zero month) per species
+sp_window <- bee_long %>%
+  filter(sp_abundance > 0) %>%
+  group_by(species) %>%
+  summarise(min_mo = min(month), max_mo = max(month), .groups = "drop")
+
+bee_wide <- bee_long %>%
+  pivot_wider(id_cols = c(year, ecosystem, species, web_ID, diet_breadth),
+              names_from = month, values_from = sp_abundance,
+              values_fn = sum, values_fill = 0) %>%
+  left_join(sp_window, by = "species")
+
+month_cols <- as.character(sort(unique(bee_long$month)))
+M  <- as.matrix(bee_wide[, month_cols]); storage.mode(M) <- "numeric"
+mm <- as.integer(month_cols)
+
+# stability = 1 / CV ; NA when < 2 months or zero total (CV undefined)
+inv_cv <- function(v) {
+  if (length(v) < 2 || sum(v) == 0) return(NA_real_)
+  m <- mean(v); s <- sd(v)
+  if (m == 0 || s == 0) return(NA_real_)
+  1 / (s / m)
+}
+
+# MAIN: stability over each species' active window
+bee_wide$bee.stability.win <- vapply(seq_len(nrow(bee_wide)), function(i) {
+  inwin <- mm >= bee_wide$min_mo[i] & mm <= bee_wide$max_mo[i]
+  inv_cv(M[i, inwin])
+}, numeric(1))
+
+# SUPPLEMENT: stability over the whole sampled season (all months)
+bee_wide$bee.stability.full <- apply(M, 1, inv_cv)
+
+# Average species-level stability to diet breadth per transect x year
+agg_stability <- function(col) {
+  bee_wide %>%
+    filter(!is.na(.data[[col]])) %>%
+    group_by(year, ecosystem, web_ID, diet_breadth) %>%
+    summarise(bee.stability.sp = mean(.data[[col]]),
+              bee.stability.se = sd(.data[[col]]) / sqrt(dplyr::n()),
+              .groups = "drop") %>%
+    mutate(diet_breadth = as.factor(diet_breadth))
+}
+bee_cast_sp   <- agg_stability("bee.stability.win")   # MAIN  (active window)
+bee_cast_full <- agg_stability("bee.stability.full")  # SUPPLEMENT (whole season)
+```
+
+### 3.1 Bee Stability & Synchrony (ALL BEES)
+```{r}
+# Two-stage test (transect = unit of replication).
+# Stage 1: slope of stability ~ synchrony per transect x diet breadth (with SE).
+# Stage 2: test whether slopes differ from 0 (and by diet/ecosystem). Unweighted
+# by default (each transect = one equally-informative replicate); set weighted=TRUE
+# to down-weight imprecise transect slopes by 1/SE (Rudgers), as a robustness check.
+
+two_stage_stability <- function(stab_df, label, weighted = FALSE) {
+  m <- merge(async %>% select(year, web_ID, site, mean_overlap),
+             stab_df, by = c("year", "web_ID"))
+  m <- m %>% filter(web_ID != "C3")   # C3 excluded (insufficient data)
+  m$ecosystem_type <- factor(
+    dplyr::recode(m$ecosystem, B = "Plains grassland",
+                  G = "Desert grassland", C = "Desert shrubland"),
+    levels = c("Plains grassland", "Desert grassland", "Desert shrubland"))
+
+  slopes <- m %>%
+    group_by(web_ID, ecosystem_type, diet_breadth) %>%
+    filter(dplyr::n() >= 3, dplyr::n_distinct(mean_overlap) >= 3) %>%
+    do(tidy(lm(bee.stability.sp ~ mean_overlap, data = .))) %>%
+    filter(term == "mean_overlap") %>%
+    ungroup() %>%
+    filter(!is.na(estimate), std.error > 0) %>%
+    mutate(w = if (weighted) 1 / std.error else 1)   # 1/SE if weighted, else equal weights
+
+  blab <- if (weighted) "1/SE-weighted mean β" else "mean β"
+  cat("\n==== ", label, " ====\n", sep = "")
+  for (d in unique(slopes$diet_breadth)) {
+    s   <- slopes %>% filter(diet_breadth == d)
+    fit <- lm(estimate ~ 1, weights = w, data = s)
+    ci  <- confint(fit)
+    tval <- summary(fit)$coefficients[1, "t value"]
+    cat(sprintf("%-11s: n = %d, %s = %.3f [95%% CI %.3f, %.3f], F_{1,%d} = %.3f, P = %.4f\n",
+        d, nrow(s), blab, coef(fit)[[1]], ci[1, 1], ci[1, 2],
+        nrow(s) - 1, tval^2, summary(fit)$coefficients[1, 4]))
+  }
+  dc <- anova(lm(estimate ~ diet_breadth,   weights = w, data = slopes))
+  ec <- anova(lm(estimate ~ ecosystem_type, weights = w, data = slopes))
+  cat(sprintf("diet-breadth contrast: F = %.3f, P = %.4f\n", dc[1,"F value"], dc[1,"Pr(>F)"]))
+  cat(sprintf("ecosystem contrast:    F = %.3f, P = %.4f\n", ec[1,"F value"], ec[1,"Pr(>F)"]))
+  invisible(slopes)
+}
+
+# MAIN: active-window stability, UNWEIGHTED (each transect = one equal replicate)
+two_stage_stability(bee_cast_sp,   "ACTIVE-WINDOW stability ~ synchrony (MAIN, unweighted)", weighted = FALSE)
+
+# SUPPLEMENT 1: same analysis with 1/SE variance weighting -- shows the main
+# result holds up when transect slopes are precision-weighted (Rudgers)
+two_stage_stability(bee_cast_sp,   "ACTIVE-WINDOW stability ~ synchrony (SUPPL: 1/SE weighted)", weighted = TRUE)
+
+# SUPPLEMENT 2: whole-season stability (all Mar-Oct months; plant-community view)
+two_stage_stability(bee_cast_full, "WHOLE-SEASON stability ~ synchrony (SUPPL: whole season)", weighted = FALSE)
+```
+
+## Figure 3: Generalist vs. Specialist Bee Stability vs. overlap
+```{r}
+# Figure 3: bee stability vs co-flowering synchrony -- unified manuscript style.
+make_stability_fig <- function(stab_df, outfile) {
+  d <- merge(async %>% select(year, web_ID, site, mean_overlap),
+             stab_df, by = c("year", "web_ID")) %>% filter(web_ID != "C3")
+  d$ecosystem_type <- factor(
+    dplyr::recode(d$ecosystem, B = "Plains grassland", G = "Desert grassland", C = "Desert shrubland"),
+    levels = c("Plains grassland", "Desert grassland", "Desert shrubland"))
+  d$diet_lab <- factor(
+    dplyr::recode(as.character(d$diet_breadth), polylectic = "Generalists", oligolectic = "Specialists"),
+    levels = c("Generalists", "Specialists"))
+
+  # Stage-1 slopes: one per transect (web_ID) within diet x ecosystem
+  slopes <- d %>% group_by(diet_lab, ecosystem_type, web_ID) %>%
+    filter(dplyr::n() >= 3, dplyr::n_distinct(mean_overlap) >= 3) %>%
+    do(tidy(lm(bee.stability.sp ~ mean_overlap, data = .))) %>%
+    filter(term == "mean_overlap") %>% ungroup()
+
+  # Global (diet-level) mean slope = mean of transect slopes -> bold black line
+  stat <- slopes %>% group_by(diet_lab) %>%
+    summarise(b = mean(estimate), n = dplyr::n(), se = sd(estimate)/sqrt(dplyr::n()),
+              tcrit = qt(0.975, dplyr::n() - 1), p = t.test(estimate)$p.value, .groups = "drop") %>%
+    mutate(lo = b - tcrit*se, hi = b + tcrit*se)
+
+  centro <- d %>% group_by(diet_lab) %>%
+    summarise(x0 = mean(mean_overlap), y0 = mean(bee.stability.sp),
+              xmin = min(mean_overlap), xmax = max(mean_overlap), .groups = "drop") %>%
+    left_join(stat, by = "diet_lab")
+  bold <- centro %>% group_by(diet_lab) %>%
+    do({ cc <- .; xs <- seq(cc$xmin, cc$xmax, length.out = 100)
+         data.frame(diet_lab = cc$diet_lab, mean_overlap = xs,
+                    y  = cc$y0 + cc$b*(xs - cc$x0),
+                    lo = cc$y0 + cc$b*(xs - cc$x0) - cc$tcrit*cc$se*abs(xs - cc$x0),
+                    hi = cc$y0 + cc$b*(xs - cc$x0) + cc$tcrit*cc$se*abs(xs - cc$x0)) }) %>% ungroup()
+
+  # Per-ecosystem mean slope = mean of that ecosystem's transect slopes (matches
+  # the per-ecosystem beta values reported in the Figure 3 caption), drawn through
+  # each ecosystem's centroid over its own synchrony range.
+  eco_stat <- slopes %>% group_by(diet_lab, ecosystem_type) %>%
+    summarise(b_eco = mean(estimate), .groups = "drop")
+  eco_centro <- d %>% group_by(diet_lab, ecosystem_type) %>%
+    summarise(x0 = mean(mean_overlap), y0 = mean(bee.stability.sp),
+              xmin = min(mean_overlap), xmax = max(mean_overlap), .groups = "drop") %>%
+    left_join(eco_stat, by = c("diet_lab", "ecosystem_type"))
+  eco_lines <- eco_centro %>% group_by(diet_lab, ecosystem_type) %>%
+    do({ cc <- .; xs <- seq(cc$xmin, cc$xmax, length.out = 100)
+         data.frame(diet_lab = cc$diet_lab, ecosystem_type = cc$ecosystem_type,
+                    mean_overlap = xs, y = cc$y0 + cc$b_eco*(xs - cc$x0)) }) %>% ungroup()
+
+  ann <- stat %>% mutate(
+    letter = ifelse(diet_lab == "Generalists", "A", "B"))
+
+  cols <- c("Plains grassland" = "#2c6c9c", "Desert grassland" = "#8a8a8a", "Desert shrubland" = "#5f7d33")
+  p <- ggplot(d, aes(mean_overlap, bee.stability.sp)) +
+    geom_point(aes(color = ecosystem_type), size = 1.8, alpha = 0.55) +
+    geom_line(data = eco_lines, aes(x = mean_overlap, y = y, color = ecosystem_type, group = ecosystem_type),
+              inherit.aes = FALSE, linewidth = 1) +
+    geom_ribbon(data = bold, aes(x = mean_overlap, ymin = lo, ymax = hi), inherit.aes = FALSE, fill = "black", alpha = 0.12) +
+    geom_line(data = bold, aes(x = mean_overlap, y = y), inherit.aes = FALSE, linewidth = 1.4) +
+    geom_text(data = ann, aes(x = -Inf, y = Inf, label = letter), inherit.aes = FALSE,
+              hjust = -0.4, vjust = 1.2, size = 8, fontface = "bold") +
+    scale_color_manual(values = cols, name = NULL) +
+    facet_wrap(~diet_lab, ncol = 1) +
+    labs(x = "Co-flowering synchrony", y = "Bee stability (1/CV)") +
+    ms_theme + theme(legend.position = c(0.99, 0.99), legend.justification = c(1, 1))
+  p
+}
+make_stability_fig(bee_cast_sp,   "FIGURE3_stability_MAIN_activewindow.svg")
+make_stability_fig(bee_cast_full, "FIGURE3_stability_SUPPL_wholeseason.svg")
+```
+
+
+
+

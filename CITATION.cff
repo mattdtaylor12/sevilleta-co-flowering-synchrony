@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite the associated manuscript and this archive."
+title: "Data and code for: Dry years had more synchronous flowering and less stable populations of generalist pollinators in a bee diversity hotspot of the southwest USA"
+type: dataset
+authors:
+  - family-names: Taylor
+    given-names: M. Dylan
+    email: mattdtaylor12@gmail.com
+    affiliation: "Sevilleta LTER, Department of Biology, University of New Mexico"
+  - family-names: Chandar
+    given-names: Manogya
+  - family-names: McLellan
+    given-names: Jade
+  - family-names: Martin
+    given-names: Emerson
+  - family-names: Kazenel
+    given-names: Melanie R.
+  - family-names: Wright
+    given-names: Karen
+  - family-names: Griswold
+    given-names: Terry
+  - family-names: Whitney
+    given-names: Kenneth D.
+  - family-names: Rudgers
+    given-names: Jennifer A.
+license: MIT
+version: "1.0.0"
+date-released: 2026-08-18
+# doi: 10.5281/zenodo.XXXXXXX   # add the Zenodo DOI once minted
