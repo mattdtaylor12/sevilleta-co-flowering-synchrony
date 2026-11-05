@@ -1,0 +1,423 @@
+---
+title: "03 — Co-flowering Synchrony & Bee Stability"
+author: "M.D. Taylor & M. Chandar"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    code_folding: hide
+  pdf_document:
+    toc: true
+    toc_depth: '4'
+---
+
+What the study asks:
+Here, we used 23 years of observations on co-flowering synchrony among 142 animal pollinated plant species in three common dryland ecosystems of the southwest USA to address, (1) Which climate variables best predict co-flowering synchrony, and are climate predictors generalizable across ecosystem types? We then paired flowering phenology with 18 years of co-located monthly abundance data for 88 bee species to evaluate, (2) Does the seasonal stability of bees track co-flowering synchrony independent of climate, and does this relationship differ between specialists and generalists? Finally, we used long-term trends to ask, (3) Has synchrony changed over time and consistently among ecosystems?
+
+Qs addressed in this script:
+Q2 does the seasonal stability of bees track synchrony, independent of climate, and how does this differ between specialists and generalists?
+
+```{r setup-03}
+rm(list=ls())
+
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(ggplot2)
+library(data.table)
+library(Directional)
+library(sfsmisc)
+library(scales)
+library(reshape2)
+library(ggthemes)
+library(cowplot)
+library(ggpubr)
+library(codyn)
+library(nlme)
+library(car)
+library(visreg)
+library(MuMIn)
+library(emmeans)
+library(piecewiseSEM)
+library(vegan)
+library(plm)
+library(lmerTest)
+library(broom)
+
+# Shared manuscript figure theme (full box, large bold fonts) + ecosystem palette
+ms_theme <- ggplot2::theme_classic(base_size = 16) +
+  ggplot2::theme(
+    panel.border     = ggplot2::element_rect(fill = NA, colour = "black", linewidth = 1.1),
+    axis.line        = ggplot2::element_blank(),
+    axis.title       = ggplot2::element_text(face = "bold", size = 18),
+    axis.text        = ggplot2::element_text(face = "bold", size = 13),
+    strip.text       = ggplot2::element_text(face = "bold", size = 17),
+    strip.background = ggplot2::element_blank(),
+    legend.title     = ggplot2::element_text(face = "bold", size = 13),
+    legend.text      = ggplot2::element_text(face = "bold", size = 12))
+ms_site_colors <- c("B" = "#2c6c9c", "G" = "#8a8a8a", "C" = "#5f7d33")
+```
+
+## Analysis 3: Co-flowering overlap & Bee Stability 
+### Prepare data
+```{r}
+#change to your working dir
+setwd("~/Documents/co-flowering synchrony/Updated 10:23:26")
+
+# import full 2002 - 2019 bee abundance data 
+bee.2019<-read.csv("data/SEVBeeData2002-2019_revised2023-07-19.csv",stringsAsFactors = T) 
+
+# turn complete sampling month and complete sampling year into factors
+bee.2019$complete_sampling_month <- as.factor(bee.2019$complete_sampling_month)
+bee.2019$complete_sampling_year <- as.factor(bee.2019$complete_sampling_year)
+
+# create unique identifier for each web
+bee.2019$web_ID<-as.factor(bee.2019$transect)
+
+# remove start/end date columns and collapse by month
+bee.2019 <- bee.2019 %>% dplyr:: select (-c("start_date", "end_date", "direction", "color")) %>% 
+  dplyr:: group_by(year, month, web_ID, ecosystem, complete_sampling_year) %>%  
+  dplyr:: summarise(across(where(is.integer), sum))
+
+
+# import tallied bee data (includes new data from 2020-2021 and some pre-2020 stragglers)
+bee.tally<- read.csv("data/bee_tally.csv") %>% 
+  separate(col = web_ID,
+           into = c("web_ID", "direction"),
+           sep = 2) %>%
+  separate(col = web_ID,
+           into = c("ecosystem", "web"),
+           sep = 1, remove = FALSE) %>% 
+  filter(!ecosystem %in% c("J", "P"))
+         
+# make wide 
+bee.tally.wide <- bee.tally %>%  pivot_wider(
+  id_cols = c(year, month, web_ID, ecosystem),
+  names_from = code,
+  values_from = abundance,
+  values_fn = sum,
+  values_fill = 0)
+
+# merge tallied data with larger data set 
+bee <- bind_rows(bee.2019, bee.tally.wide) %>%
+  dplyr:: group_by(year, month, web_ID, ecosystem) %>%  
+  dplyr:: summarise(across(where(is.integer), sum),
+            .groups = "drop") %>% 
+  dplyr::mutate(across(5:360, ~ replace_na(.x, 0)))
+summary(bee)
+
+# calculate total bee abundance
+bee$abundance<-rowSums(bee[,5:360])
+summary(bee$abundance)
+
+# calculate richness, diversity, evenness
+bee$richness<-specnumber(bee[,5:360])
+bee$shannonH<-diversity(bee[,5:360])
+bee$evenness<-bee$shannonH/log(bee$richness)
+
+# import phenological synchrony
+async<-read.csv("data/plant_overlap_climate_filtered.csv",stringsAsFactors = T) 
+
+# create unique identifier for each web
+async$web_ID<-as.factor(paste(async$site,async$web,sep=""))
+bee$web_ID <- as.factor(bee$web_ID)
+# check that they match
+  summary(bee$web_ID) 
+  summary(async$web_ID)
+
+# remove 2016/2017 (partial sampling years)
+bee<- bee %>% filter(!year %in% c("2016", "2017"))
+
+# import M. Kazenel LH trait data
+bee.spec <- read.csv("data/lhtraits_2023-08-29_forpub.csv")
+#remove bees with unknown or parasitic diet breadth
+bee.spec<- bee.spec %>% filter(diet_breadth != "unknown") %>%  filter(diet_breadth != "parasitic") %>% 
+# some of the species have question marks  
+filter(diet_breadth != "polylectic?") %>% filter(diet_breadth != "oligolectic?") 
+sort(unique(bee.spec$diet_breadth))
+
+# counts for number of gen vs specialist and total
+bee.spec %>% 
+  count(diet_breadth, sort = TRUE)
+# out of 341 species: 86 specialists, 81 generalists 
+
+```
+
+### Calculating Bee Stability - POPULATION  
+This represents population-level stability, calculating individual stability values for each species.
+
+```{r}
+# ============================================================================
+# Bee stability over each species' ACTIVE WINDOW + whole season
+# Rare species excluded (< 10 non-zero records). Window = one global, contiguous
+# min-max non-zero month per bee species (across all years/ecosystems/transects);
+# stability = 1 / CV of monthly abundance over those active window months each year.
+# ============================================================================
+
+bee_long <- bee %>%
+  dplyr:: select(-c(abundance, richness, shannonH, evenness)) %>%
+  pivot_longer(cols = -c(year, ecosystem, web_ID, month),
+               names_to = "species", values_to = "sp_abundance") %>%
+  inner_join(bee.spec %>% dplyr:: select(code, diet_breadth), by = c("species" = "code"))
+
+# Exclude truly rare species: keep those with >= 10 non-zero species x month records
+keep_species <- bee_long %>%
+  filter(sp_abundance > 0) %>%
+  count(species, name = "n_rec") %>%
+  filter(n_rec >= 10) %>%
+  pull(species)
+bee_long <- bee_long %>% filter(species %in% keep_species)
+
+# One global, contiguous active window (min & max non-zero month) per species
+sp_window <- bee_long %>%
+  filter(sp_abundance > 0) %>%
+  group_by(species) %>%
+  summarise(min_mo = min(month), max_mo = max(month), .groups = "drop")
+
+bee_wide <- bee_long %>%
+  pivot_wider(id_cols = c(year, ecosystem, species, web_ID, diet_breadth),
+              names_from = month, values_from = sp_abundance,
+              values_fn = sum, values_fill = 0) %>%
+  left_join(sp_window, by = "species")
+
+month_cols <- as.character(sort(unique(bee_long$month)))
+M  <- as.matrix(bee_wide[, month_cols]); storage.mode(M) <- "numeric"
+mm <- as.integer(month_cols)
+
+# stability = 1 / CV ; NA when < 2 months or zero total (CV undefined)
+inv_cv <- function(v) {
+  if (length(v) < 2 || sum(v) == 0) return(NA_real_)
+  m <- mean(v); s <- sd(v)
+  if (m == 0 || s == 0) return(NA_real_)
+  1 / (s / m)
+}
+
+# MAIN: stability over each species' active window
+bee_wide$bee.stability.win <- vapply(seq_len(nrow(bee_wide)), function(i) {
+  inwin <- mm >= bee_wide$min_mo[i] & mm <= bee_wide$max_mo[i]
+  inv_cv(M[i, inwin])
+}, numeric(1))
+
+# SUPPLEMENT: stability over the whole sampled season (all months)
+bee_wide$bee.stability.full <- apply(M, 1, inv_cv)
+
+# Average species-level stability to diet breadth per transect x year
+agg_stability <- function(col) {
+  bee_wide %>%
+    filter(!is.na(.data[[col]])) %>%
+    group_by(year, ecosystem, web_ID, diet_breadth) %>%
+    summarise(bee.stability.sp = mean(.data[[col]]),
+              bee.stability.se = sd(.data[[col]]) / sqrt(dplyr::n()),
+              .groups = "drop") %>%
+    mutate(diet_breadth = as.factor(diet_breadth))
+}
+bee_cast_sp   <- agg_stability("bee.stability.win")   # MAIN  (active window)
+bee_cast_full <- agg_stability("bee.stability.full")  # SUPPLEMENT (whole season)
+
+# ---- Species counts by site and diet breadth (species retained after rarity filter) ----
+# bee_long holds zeros for every site, so filter to records where the species was caught
+sp_counts_site <- bee_long %>%
+  filter(sp_abundance > 0) %>%
+  distinct(ecosystem, species, diet_breadth) %>%
+  count(ecosystem, diet_breadth) %>%
+  pivot_wider(names_from = diet_breadth, values_from = n, values_fill = 0) %>%
+  mutate(total = rowSums(across(-ecosystem)),
+         ecosystem = dplyr::recode(ecosystem, B = "Plains grassland",
+                                   G = "Desert grassland", C = "Desert shrubland"))
+sp_counts_site
+#roughly the same proportions based on site and same diversity
+
+# overall (each species counted once)
+bee_long %>%
+  filter(sp_abundance > 0) %>%
+  distinct(species, diet_breadth) %>%
+  count(diet_breadth)
+# 40 specialists and 48 generalists after filtering for acitivty window
+```
+
+### 3.1 Bee stability over time (two-stage)
+```{r}
+# ============================================================
+# Bee stability over time -- two-stage (transect = unit of replication),
+# parallel to the synchrony-over-time analysis in 02, with diet breadth added.
+# ============================================================
+bee_time <- bee_cast_sp %>%
+  dplyr::filter(web_ID != "C3") %>%
+  dplyr::mutate(
+    ecosystem_type = factor(dplyr::recode(ecosystem, B = "Plains grassland",
+                            G = "Desert grassland", C = "Desert shrubland"),
+                            levels = c("Plains grassland","Desert grassland","Desert shrubland")),
+    diet_breadth = factor(diet_breadth))
+
+# keep transect x diet series with >= 5 years for a reliable Stage-1 slope
+ty_n    <- bee_time %>% dplyr::distinct(web_ID, diet_breadth, year) %>%
+  dplyr::count(web_ID, diet_breadth, name = "n_years")
+keep_td <- dplyr::filter(ty_n, n_years >= 5)
+bee_time_s <- bee_time %>%
+  dplyr::semi_join(keep_td, by = c("web_ID","diet_breadth")) %>%
+  dplyr::mutate(year_scaled = as.numeric(scale(year)))
+
+# Stage 1: one temporal slope per transect x diet
+bee_slopes_year <- bee_time_s %>%
+  dplyr::group_by(ecosystem_type, web_ID, diet_breadth) %>%
+  do(tidy(lm(bee.stability.sp ~ year_scaled, data = .))) %>%
+  dplyr::filter(term == "year_scaled") %>%
+  dplyr::ungroup() %>% dplyr::filter(!is.na(estimate), std.error > 0)
+
+gen_ty  <- subset(bee_slopes_year, diet_breadth == "polylectic")   # generalists
+spec_ty <- subset(bee_slopes_year, diet_breadth == "oligolectic")  # specialists
+
+# Stage 2a: global temporal trend per diet (intercept-only = t-test of mean slope vs 0)
+summary(lm(estimate ~ 1, data = gen_ty))
+summary(lm(estimate ~ 1, data = spec_ty))
+
+# Stage 2b: ecosystem contrast (per diet) and diet-breadth contrast
+anova(lm(estimate ~ ecosystem_type, data = gen_ty))
+anova(lm(estimate ~ ecosystem_type, data = spec_ty))
+anova(lm(estimate ~ diet_breadth,   data = bee_slopes_year))
+
+# ---- 1/SE-weighted robustness (matches synchrony over-time) ----
+summary(lm(estimate ~ 1, weights = 1/std.error, data = gen_ty))
+summary(lm(estimate ~ 1, weights = 1/std.error, data = spec_ty))
+anova(lm(estimate ~ diet_breadth, weights = 1/std.error, data = bee_slopes_year))
+#bee stability not changing over time by any rate, and weighting by the variance of the slopes does not change this
+```
+
+### 3.2 Bee stability ~ synchrony models, and evaluating whether climate alters their relationship
+```{r}
+# ============================================================
+# Q3 bee-stability models —
+options(contrasts = c("contr.sum", "contr.poly"))   # Type III w/ interactions
+
+bc <- bee_cast_sp %>%
+  dplyr::mutate(web_ID = as.character(web_ID)) %>%
+  dplyr::inner_join(async %>% dplyr::mutate(web_ID = as.character(web_ID)),
+                    by = c("year", "web_ID")) %>%
+  dplyr::filter(web_ID != "C3") %>%         
+  dplyr::mutate(web_id       = factor(web_ID),
+                year_fact    = factor(year),
+                diet_breadth = factor(diet_breadth))
+
+rich_ty   <- read.csv("data/richness_by_transectyear.csv")
+bc <- bc %>% dplyr::left_join(rich_ty, by = c("year","site","web"))
+summary(bc$n_species)                  
+
+
+# base model: synchrony * diet
+bee_syn    <- lmer(bee.stability.sp ~ mean_overlap * diet_breadth * site +
+                      (1 | web_id), REML = FALSE, data = bc)
+anova(bee_syn, type = 3) 
+   
+## COOL-SEASON (SPRING) PRECIP ######
+bee_syn_clim <- lmer(bee.stability.sp ~ mean_overlap * diet_breadth * site 
+                     + season.precip.spring + (1 | web_id), REML = FALSE, data = bc)
+anova(bee_syn_clim, type = 3)
+
+#Type III Analysis of Variance Table with Satterthwaite's method
+#                                 Sum Sq  Mean Sq NumDF DenDF F value    Pr(>F)    
+#mean_overlap                   0.037576 0.037576     1   394 11.7868 0.0006598 ***
+#diet_breadth                   0.084498 0.084498     1   394 26.5049 4.159e-07 ***
+#site                           0.025736 0.012868     2   394  4.0364 0.0183962 *  
+#season.precip.spring           0.020500 0.020500     1   394  6.4304 0.0116039 *  
+#mean_overlap:diet_breadth      0.002883 0.002883     1   394  0.9042 0.3422423    
+#mean_overlap:site              0.010869 0.005435     2   394  1.7047 0.1831586    
+#diet_breadth:site              0.001299 0.000649     2   394  0.2037 0.8158034    
+#mean_overlap:diet_breadth:site 0.001593 0.000797     2   394  0.2499 0.7790293 
+
+AICc(bee_syn, bee_syn_clim)
+#in this case, the climate model wins by dAICc of 4. Adding climate, while it significantly predicts stability, adds information to make this a better fitting model to the data, and makes synchrony a stronger predictor
+
+MuMIn::r.squaredGLMM(bee_syn)      # synchrony * diet only
+MuMIn::r.squaredGLMM(bee_syn_clim)   # + cool-season precip
+#adding climate only raises R2m from 0.35 to 0.36, basically no gain in explanatory power
+
+qqnorm(resid(bee_syn)); qqline(resid(bee_syn)); hist(resid(bee_syn))
+
+## PDO ######
+bee_syn_clim1 <- lmer(bee.stability.sp ~ mean_overlap * diet_breadth * site + annual.PDO +
+                       (1 | web_id), REML = FALSE,
+                     data = bc)
+anova(bee_syn_clim1, type = 3) 
+
+AICc(bee_syn, bee_syn_clim1, bee_syn_clim)
+#adding PDO does not improve model fit- dAICc of 3. No difference, we retain simpler model.
+
+MuMIn::r.squaredGLMM(bee_syn)      # synchrony * diet only
+MuMIn::r.squaredGLMM(bee_syn_clim1)  # + PDO
+#this does not change R2m at all, so no added explanatory power
+
+#based on this, we retain that synchrony predicts seasonal bee abundance stability, while there may be independent climate-stability relationships, this is seperate from and does not add explanatory power or negate our stability~synchrony model. 
+```
+
+###Inference from best model
+```{r}
+options(contrasts = c("contr.sum", "contr.poly"))
+
+# ---- Selected model, refit simpler model under REML for inference ----
+bee_syn_clim <- lmer(bee.stability.sp ~ mean_overlap * diet_breadth + site + season.precip.spring +
+                       (1 | web_id), data = bc, REML = TRUE)
+
+# 1. Fixed-effect slopes (estimate, SE, df, t, p) — Satterthwaite via lmerTest
+summary(bee_syn_clim)$coefficients
+
+# 3. Overall synchrony slope (averaged over diet, precip at mean)
+emtrends(bee_syn_clim, ~ 1, var = "mean_overlap")
+#stability declines by 0.07 with 95% CI of (0.11-0.03) for 1 unit increase in synchrony
+
+diff(range(bc$mean_overlap, na.rm = TRUE)) * -0.07
+-0.05684636 / mean(bc$bee.stability.sp, na.rm = TRUE) * 100 
+#across the observed range of synchrony, from 0.19-1, 
+# stability declines by about 10% relative to the stability mean
+
+# 4. Per-guild synchrony slopes + the interaction contrast
+emtrends(bee_syn_clim, ~ diet_breadth, var = "mean_overlap")      
+pairs(emtrends(bee_syn_clim, ~ diet_breadth, var = "mean_overlap")) # generalist vs specialist
+# diet_breadth mean_overlap.trend     SE  df lower.CL upper.CL
+# oligolectic             -0.0515 0.0285 381   -0.107  0.00449
+# polylectic              -0.0878 0.0285 381   -0.144 -0.03184
+#not sig difference but only polylectic (generalists) CI does not cross zero, stronger slope overall
+
+# 5. Precip slope (already in the coef table, but as a trend for clarity)
+emtrends(bee_syn_clim, ~ 1, var = "season.precip.spring")
+
+# 6. Diet-guild stability means (the dominant effect), synchrony & precip at their means
+emmeans(bee_syn_clim, ~ diet_breadth)
+#diet_breadth emmean      SE   df lower.CL upper.CL
+# oligolectic   0.524 0.00414 37.2    0.515    0.532
+# polylectic    0.600 0.00414 37.2    0.591    0.608
+```
+
+### 3.5 Figure: bee stability vs co-flowering synchrony
+```{r}
+bc$diet_label <- factor(ifelse(bc$diet_breadth == "polylectic", "Generalist", "Specialist"),
+                        levels = c("Generalist", "Specialist"))
+bc$site <- factor(bc$site, levels = c("B", "G", "C"))
+site_labels <- c("B" = "Plains\ngrassland", "G" = "Desert\ngrassland", "C" = "Desert\nshrubland")
+
+# ---- Refit the selected model
+bee_syn_clim <- lmer(bee.stability.sp ~ mean_overlap * diet_breadth + season.precip.spring +
+                       (1 | web_id), data = bc, REML = TRUE)
+
+# ---- Model-predicted synchrony slope (pooled over diet, precip at mean) ----
+ov_grid <- seq(min(bc$mean_overlap, na.rm = TRUE),
+               max(bc$mean_overlap, na.rm = TRUE), length.out = 100)
+
+pred_stab <- as.data.frame(emmeans(bee_syn_clim, ~ mean_overlap,
+                                    at = list(mean_overlap = ov_grid)))
+
+# ---- (A) Stability vs synchrony ----
+stab_syn_plot <- ggplot(pred_stab, aes(x = mean_overlap, y = emmean)) +
+  geom_point(data = bc, aes(x = mean_overlap, y = bee.stability.sp, color = site),
+             inherit.aes = FALSE, size = 2, alpha = 0.6) +
+  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL), alpha = 0.18, fill = "grey60") +
+  geom_line(linewidth = 1.3, color = "black") +
+  scale_color_manual(values = ms_site_colors, labels = site_labels, name = "Site") +
+  labs(x = "Co-flowering synchrony", y = "Seasonal bee stability (1/CV)") +
+  ms_theme
+
+stab_syn_plot
+ggsave("figures/FIGURE3_stability_synchrony_site_diet.svg", stab_syn_plot, width = 15, height = 6.5)
+ggsave("figures/FIGURE3_stability_synchrony_site_diet.png", stab_syn_plot, width = 15, height = 6.5, dpi = 300)
+```
